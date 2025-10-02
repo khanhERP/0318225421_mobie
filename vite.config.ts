@@ -11,6 +11,7 @@ const __dirname = dirname(__filename);
 export default defineConfig({
   plugins: [react()],
   root: path.resolve(__dirname, "client"),
+  base: "/",
   resolve: {
   alias: {
     "@": path.resolve(__dirname, "client/src"),
