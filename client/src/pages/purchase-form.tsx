@@ -206,13 +206,13 @@ export default function PurchaseFormPage({
 
   // Fetch suppliers
   const { data: suppliers = [] } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/suppliers"],
     select: (data: any) => data || [],
   });
 
   // Fetch employees for assignment
   const { data: employees = [] } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/employees"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/employees"],
     select: (data: any[]) =>
       (data || []).map((emp: any) => ({
         id: emp.id,
@@ -222,13 +222,13 @@ export default function PurchaseFormPage({
 
   // Fetch categories for new product form
   const { data: categories = [] } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/categories"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/categories"],
     select: (data: any) => data || [],
   });
 
   // Fetch products for selection
   const { data: allProducts = [] } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/products"],
     select: (data: any[]) =>
       (data || []).map((product: any) => ({
         ...product,
@@ -248,7 +248,7 @@ export default function PurchaseFormPage({
 
   // Fetch existing purchase order for edit mode
   const { data: existingOrder, isLoading: isLoadingOrder } = useQuery({
-    queryKey: [`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-orders/${id}`],
+    queryKey: [`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-orders/${id}`],
     enabled: Boolean(id),
     select: (data: any) => {
       console.log("📊 Purchase order API response:", data);
@@ -258,7 +258,7 @@ export default function PurchaseFormPage({
 
   // Fetch existing documents for edit mode
   const { data: existingDocuments } = useQuery({
-    queryKey: [`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-orders/${id}/documents`],
+    queryKey: [`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-orders/${id}/documents`],
     enabled: Boolean(id),
     select: (data: any) => data || [],
   });
@@ -269,14 +269,14 @@ export default function PurchaseFormPage({
     error: nextPOError,
     isLoading: isLoadingPONumber,
   } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-orders/next-po-number"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-orders/next-po-number"],
     enabled: !isEditMode,
     queryFn: async () => {
       try {
         console.log("🔍 Fetching next PO number...");
         const response = await apiRequest(
           "GET",
-          "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-orders/next-po-number",
+          "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-orders/next-po-number",
         );
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -466,8 +466,8 @@ export default function PurchaseFormPage({
       console.log("API payload:", data);
 
       const response = isEditMode
-        ? await apiRequest("PUT", `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts/${id}`, data)
-        : await apiRequest("POST", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts", data);
+        ? await apiRequest("PUT", `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-receipts/${id}`, data)
+        : await apiRequest("POST", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-receipts", data);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -492,8 +492,8 @@ export default function PurchaseFormPage({
       });
 
       // Refresh data
-      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/suppliers"] });
 
       // Navigate back to purchases list
       setTimeout(() => {
@@ -531,7 +531,7 @@ export default function PurchaseFormPage({
   // Create new product mutation
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("POST", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products", data);
+      const response = await apiRequest("POST", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/products", data);
       return response.json();
     },
     onSuccess: (newProduct) => {
@@ -542,7 +542,7 @@ export default function PurchaseFormPage({
       });
 
       // Update products query cache
-      queryClient.setQueryData(["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products"], (old: any[]) => {
+      queryClient.setQueryData(["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/products"], (old: any[]) => {
         return [
           ...(old || []),
           { ...newProduct, unitPrice: Number(newProduct.price) || 0 },
@@ -550,7 +550,7 @@ export default function PurchaseFormPage({
       });
 
       // Invalidate queries for cache consistency
-      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/products"] });
 
       // Add new product to selected items automatically
       addProduct({

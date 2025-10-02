@@ -61,7 +61,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
     queryKey: ["daily-sales-orders", dateRange.start, dateRange.end],
     queryFn: async () => {
       const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
+        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders/date-range/${dateRange.start}/${dateRange.end}`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
@@ -91,7 +91,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
     queryKey: ["order-items", selectedOrder?.id],
     queryFn: async () => {
       if (!selectedOrder?.id) return [];
-      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items/${selectedOrder.id}`);
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/order-items/${selectedOrder.id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }
@@ -271,32 +271,45 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
 
               <div className="space-y-2 text-sm mb-4">
                 {selectedOrderItems && selectedOrderItems.length > 0 ? (
-                  selectedOrderItems.map((item: any, index: number) => (
-                    <div key={index} className="flex justify-between">
-                      <div>
-                        <div>{item.productName || "Sản phẩm"}</div>
-                        <div className="text-gray-600">x {item.quantity}</div>
-                        {item.notes && (
-                          <div className="text-xs text-gray-500">
-                            {item.notes}
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-right">
+                  selectedOrderItems.map((item: any, index: number) => {
+                    // Calculate display price based on priceIncludeTax
+                    let displayPrice = parseFloat(item.unitPrice || "0");
+                    const priceIncludeTax = selectedOrder.priceIncludeTax === true;
+                    const itemTax = parseFloat(item.tax || "0");
+                    const quantity = parseInt(item.quantity || "1");
+                    
+                    if (priceIncludeTax && itemTax > 0) {
+                      // If price includes tax: unitPrice = price with tax, need to show price without tax
+                      const taxPerUnit = itemTax / quantity;
+                      displayPrice = displayPrice - taxPerUnit;
+                    }
+                    
+                    return (
+                      <div key={index} className="flex justify-between">
                         <div>
-                          {formatCurrency(parseFloat(item.unitPrice || "0"))}
-                        </div>
-                        <div className="font-semibold">
-                          {formatCurrency(parseFloat(item.total || "0"))}
-                        </div>
-                        {parseFloat(item.discount || "0") > 0 && (
-                          <div className="text-xs text-red-500">
-                            -{formatCurrency(parseFloat(item.discount))}
+                          <div>{item.productName || "Sản phẩm"}</div>
+                          <div className="text-gray-600">
+                            {formatCurrency(displayPrice)} x {item.quantity}
                           </div>
-                        )}
+                          {item.notes && (
+                            <div className="text-xs text-gray-500">
+                              {item.notes}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold">
+                            {formatCurrency(parseFloat(item.total || "0"))}
+                          </div>
+                          {parseFloat(item.discount || "0") > 0 && (
+                            <div className="text-xs text-red-500">
+                              -{formatCurrency(parseFloat(item.discount))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center text-gray-500">
                     {isLoading

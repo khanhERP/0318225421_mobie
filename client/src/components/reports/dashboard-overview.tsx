@@ -33,6 +33,7 @@ interface OrderData {
   customerCount?: number;
   priceIncludeTax?: boolean; // Added for clarity
   tax?: string; // Added for clarity
+  discount?: string; // Added for clarity
 }
 
 interface OrderItemData {
@@ -77,7 +78,7 @@ export function DashboardOverview() {
   const { data: ordersData, isLoading: ordersLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders");
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
@@ -89,7 +90,7 @@ export function DashboardOverview() {
   const { data: orderItemsData, isLoading: orderItemsLoading } = useQuery({
     queryKey: ["order-items"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/order-items");
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }
@@ -102,7 +103,7 @@ export function DashboardOverview() {
     queryKey: ["orders-date-range", dateRange.start, dateRange.end],
     queryFn: async () => {
       const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
+        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders/date-range/${dateRange.start}/${dateRange.end}`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch orders in date range");
@@ -115,7 +116,7 @@ export function DashboardOverview() {
   const { data: tablesData } = useQuery({
     queryKey: ["tables"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/tables");
       if (!response.ok) {
         throw new Error("Failed to fetch tables");
       }
@@ -234,7 +235,7 @@ export function DashboardOverview() {
       return names[method as keyof typeof names] || t("common.cash");
     };
 
-    // Calculate payment methods statistics with proper priceIncludeTax handling
+    // Calculate payment methods statistics - total customer payment
     const paymentMethods: { [key: string]: { count: number; total: number } } =
       {};
     completedOrders.forEach((order) => {
@@ -248,12 +249,21 @@ export function DashboardOverview() {
       const orderTax = parseFloat(order.tax || "0");
       const priceIncludeTax = order.priceIncludeTax === true;
 
-      // If price includes tax, revenue = total - tax
-      // If price doesn't include tax, revenue = total (already net of tax)
-      const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
+      // Calculate revenue first (same as above)
+      let revenue;
+      if (priceIncludeTax) {
+        // If price includes tax: revenue = total - tax
+        revenue = orderTotal - orderTax;
+      } else {
+        // If price doesn't include tax: revenue = total (already net of tax)
+        revenue = orderTotal;
+      }
+
+      // Customer payment = revenue + tax
+      const customerPayment = revenue + orderTax;
 
       paymentMethods[methodName].count += 1;
-      paymentMethods[methodName].total += revenue;
+      paymentMethods[methodName].total += customerPayment;
     });
 
     // Get unique customers from date range orders
@@ -274,35 +284,57 @@ export function DashboardOverview() {
 
     relevantOrderItems.forEach((item) => {
       const productName = item.productName;
+      const unitPrice = parseFloat(item.unitPrice || "0");
+      const quantity = item.quantity;
+      const itemTotal = parseFloat(item.total || "0");
+
       if (!productStats[productName]) {
-        productStats[productName] = { quantity: 0, revenue: 0, unitPrice: item.unitPrice }; // Initialize unitPrice
+        productStats[productName] = {
+          quantity: 0,
+          revenue: 0,
+          unitPrice: item.unitPrice,
+          totalDiscount: 0,
+          totalTax: 0,
+          priceIncludeTax: false
+        };
       }
 
       // Find the order for this item to check priceIncludeTax
       const order = completedOrders.find((o) => o.id === item.orderId);
-      const itemTotal = parseFloat(item.total || "0");
+      const priceIncludeTax = order?.priceIncludeTax === true;
 
-      let itemRevenue = itemTotal;
-      if (order && order.priceIncludeTax === true) {
-        // If price includes tax, we need to calculate revenue excluding tax
-        // For order items, we need to calculate the tax portion and subtract it
-        const orderTax = parseFloat(order.tax || "0");
+      // Calculate item discount
+      let itemDiscount = 0;
+      if (order && parseFloat(order.discount || "0") > 0) {
+        const orderDiscount = parseFloat(order.discount || "0");
         const orderSubtotal = parseFloat(order.subtotal || "0");
-        const orderTotal = parseFloat(order.total || "0");
-
-        if (orderTotal > 0) {
-          // Calculate tax rate for this order
-          const taxRate = orderSubtotal > 0 ? orderTax / orderSubtotal : 0; // Handle division by zero
-          // Calculate item tax and subtract from item total to get revenue
-          const itemTax = itemTotal * taxRate / (1 + taxRate);
-          itemRevenue = itemTotal - itemTax;
+        if (orderSubtotal > 0) {
+          itemDiscount = (orderDiscount * itemTotal) / orderSubtotal;
         }
       }
 
-      productStats[productName].quantity += item.quantity;
+      // Calculate item tax
+      let itemTax = 0;
+      if (order) {
+        const orderTax = parseFloat(order.tax || "0");
+        const orderSubtotal = parseFloat(order.subtotal || "0");
+        if (orderSubtotal > 0) {
+          itemTax = (orderTax * itemTotal) / orderSubtotal;
+        }
+      }
+
+      let itemRevenue = itemTotal;
+      if (priceIncludeTax) {
+        // If price includes tax: revenue = total - tax
+        itemRevenue = itemTotal - itemTax;
+      }
+
+      productStats[productName].quantity += quantity;
       productStats[productName].revenue += itemRevenue;
-      // Update unitPrice to ensure it's the latest one if multiple entries exist, though ideally it should be consistent
+      productStats[productName].totalDiscount += itemDiscount;
+      productStats[productName].totalTax += itemTax;
       productStats[productName].unitPrice = item.unitPrice;
+      productStats[productName].priceIncludeTax = priceIncludeTax;
     });
 
     const topProducts = Object.entries(productStats)
@@ -602,8 +634,25 @@ export function DashboardOverview() {
                       ? ((parseFloat(product.revenue.toString() || "0") / totalRevenue) * 100).toFixed(0)
                       : "0";
 
+                  // Calculate display price based on priceIncludeTax
+                  let displayPrice = 0;
+                  const unitPrice = parseFloat(product.unitPrice);
+                  const quantity = product.quantity;
+                  
+                  if (product.priceIncludeTax) {
+                    // priceIncludeTax = true: price = unitPrice * quantity / (1 + taxRate / 100)
+                    const avgTax = product.totalTax / quantity;
+                    const taxRate = avgTax > 0 ? (avgTax / (unitPrice - avgTax)) * 100 : 0;
+                    displayPrice = (unitPrice * quantity) / (1 + taxRate / 100);
+                  } else {
+                    // priceIncludeTax = false: price = unitPrice * quantity + (unitPrice * quantity * taxRate / 100)
+                    const avgTax = product.totalTax / quantity;
+                    const taxRate = avgTax > 0 ? (avgTax / unitPrice) * 100 : 0;
+                    displayPrice = unitPrice * quantity + (unitPrice * quantity * taxRate / 100);
+                  }
+
                   return (
-                    <div key={index} className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <div
                         className={`w-3 h-3 rounded-full ${colors[index] || "bg-gray-500"}`}
                       ></div>
@@ -612,7 +661,7 @@ export function DashboardOverview() {
                           {product.name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {Math.floor(parseFloat(product.unitPrice) || 0).toLocaleString("vi-VN")} ₫
+                          {formatCurrency(Math.max(0, displayPrice))}
                         </div>
                       </div>
                       <div className="text-xs text-gray-500">{percentage}%</div>
@@ -654,7 +703,7 @@ export function DashboardOverview() {
                       </div>
                       <div className="text-right">
                         <div className="font-semibold">
-                          {t("reports.totalAmount")}: {formatCurrency(data.total)}
+                          {t("common.totalCustomerPayment")}: {formatCurrency(data.total)}
                         </div>
                       </div>
                     </div>

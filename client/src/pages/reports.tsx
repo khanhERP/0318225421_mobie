@@ -74,6 +74,35 @@ export default function ReportsPage({ onLogout }: ReportsPageProps) {
       setShowOtherMenu(false); // Hide other menu when navigating to other tabs
     }
   }, [search]);
+
+  // Listen for popstate events to handle browser navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      
+      if (tab === "menu") {
+        setShowMenuReports(true);
+        setShowReportsMenu(false);
+        setShowDailySalesReport(false);
+        setShowOtherMenu(false);
+      } else if (tab === "other") {
+        setShowOtherMenu(true);
+        setShowReportsMenu(false);
+        setShowDailySalesReport(false);
+        setShowMenuReports(false);
+      } else if (tab && ["overview", "sales", "table", "saleschart"].includes(tab)) {
+        setActiveTab(tab);
+        setShowReportsMenu(false);
+        setShowDailySalesReport(false);
+        setShowMenuReports(false);
+        setShowOtherMenu(false);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
   // Show daily sales report if requested
   if (showDailySalesReport) {
     return <DailySalesReport onBack={() => setShowDailySalesReport(false)} />;

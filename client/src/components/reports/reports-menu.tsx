@@ -33,7 +33,10 @@ export function ReportsMenu({
       label: t("reports.menuAnalysis"),
       description: t("reports.menuAnalysisDescription"),
       onClick: () => {
-        window.location.href = "/reports?tab=menu";
+        const url = new URL(window.location);
+        url.searchParams.set("tab", "menu");
+        window.history.pushState({}, "", url.toString());
+        window.dispatchEvent(new PopStateEvent("popstate"));
       },
     },
   ];

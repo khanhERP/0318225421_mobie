@@ -1411,5 +1411,6 @@ export const commonTranslations: { [key: string]: CommonTranslations } = {
     paymentInvoice: "Hóa đơn thanh toán",
     provisionalVoucher: "Phiếu tạm tính",
     invoiceTitle: "HÓA ĐƠN BÁN HÀNG",
+    totalCustomerPayment: "Tổng tiền",
   },
 };

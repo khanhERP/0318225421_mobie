@@ -113,7 +113,7 @@ export function MenuReport({
     refetch,
   } = useQuery({
     queryKey: [
-      "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/menu-analysis",
+      "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/menu-analysis",
       dateRange.start,
       dateRange.end,
       selectedCategory,
@@ -128,7 +128,7 @@ export function MenuReport({
 
         const response = await apiRequest(
           "GET",
-          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/menu-analysis?${params.toString()}`,
+          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/menu-analysis?${params.toString()}`,
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch menu analysis: ${response.status}`);
@@ -178,7 +178,7 @@ export function MenuReport({
   };
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/menu-analysis"] });
+    queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/menu-analysis"] });
     refetch();
   };
 
