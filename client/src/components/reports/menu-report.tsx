@@ -369,7 +369,7 @@ export function MenuReport({
                         {t("reports.quantity")}
                       </th>
                       <th className="text-right py-3 px-3 text-sm font-medium text-gray-700">
-                        {t("reports.revenue")}
+                        {t("reports.totalRevenue")}
                       </th>
                     </tr>
                   </thead>
@@ -455,7 +455,11 @@ export function MenuReport({
                           ) || "0"}
                         </td>
                         <td className="py-3 px-3 text-right text-sm font-bold text-gray-900">
-                          {formatCurrency(menuAnalysis.totalRevenue || 0)}
+                          {formatCurrency(
+                            menuAnalysis.productStats.reduce((sum, product) => {
+                              return sum + (product.totalRevenue || 0);
+                            }, 0),
+                          )}
                         </td>
                       </tr>
                     </tfoot>

@@ -299,7 +299,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                         </div>
                         <div className="text-right">
                           <div className="font-semibold">
-                            {formatCurrency(parseFloat(item.total || "0"))}
+                            {formatCurrency(displayPrice * parseInt(item.quantity || "1"))}
                           </div>
                           {parseFloat(item.discount || "0") > 0 && (
                             <div className="text-xs text-red-500">
@@ -324,7 +324,11 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                   <span>{t("common.subtotal")}</span>
                   <span>
                     {formatCurrency(
-                      parseFloat(selectedOrder.subtotal || selectedOrder.total),
+                      selectedOrderItems.reduce((sum: number, item: any) => {
+                        const displayPrice = parseFloat(item.unitPrice || "0");
+                        const quantity = parseInt(item.quantity || "1");
+                        return sum + (displayPrice * quantity);
+                      }, 0)
                     )}
                   </span>
                 </div>

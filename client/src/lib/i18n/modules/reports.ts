@@ -50,6 +50,7 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     paymentMethodChart: "Biểu đồ phương thức thanh toán",
     hourlyBreakdownChart: "Phân tích theo giờ",
     topProductsChart: "Sản phẩm bán chạy",
+    totalRevenue: "Tổng thu từ bán hàng",
 
     // Payment methods
     paymentMethodBreakdown: "Phân tích phương thức thanh toán",
@@ -533,7 +534,8 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     loading: "Đang tải",
     noData: "Không có dữ liệu",
     noPaymentData: "Không có dữ liệu thanh toán",
-    noPaymentDataDescription: "Không tìm thấy giao dịch thanh toán nào trong thời gian đã chọn",
+    noPaymentDataDescription:
+      "Không tìm thấy giao dịch thanh toán nào trong thời gian đã chọn",
 
     // Additional Vietnamese translations
     period: "Kỳ",
@@ -578,6 +580,7 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     dashboardDescription: "총 매출 및 운영 상태 대시보드",
     salesAnalysis: "매출 분석",
     orderCount: "주문 수",
+    totalRevenue: "총 매출",
     menuAnalysis: "메뉴 분석",
     totalMoney: "총 금액",
     tableAnalysis: "테이블 분석",
@@ -1124,6 +1127,7 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     menuAnalysis: "Menu Analysis",
     tableAnalysis: "Table Analysis",
     backToTables: "Back to Tables",
+    totalRevenue: "Total Revenue",
 
     // Date and time filters
     startDate: "Start Date",

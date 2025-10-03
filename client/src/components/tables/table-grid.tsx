@@ -1745,54 +1745,60 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
   };
 
   // Helper function to calculate order total with tax consideration
-  const calculateOrderTotal = useCallback((order: Order, items: any[]) => {
-    if (!items || items.length === 0) {
-      return Math.floor(Number(order.total || 0));
-    }
-
-    const priceIncludesTax = storeSettings?.priceIncludesTax || false;
-
-    let subtotal = 0;
-    let tax = 0;
-
-    items.forEach((item: any) => {
-      const unitPrice = Number(item.unitPrice || 0);
-      const quantity = Number(item.quantity || 0);
-      const product = products?.find((p: any) => p.id === item.productId);
-
-      if (priceIncludesTax) {
-        // When priceIncludesTax = true: subtotal = sum(beforeTaxPrice * quantity)
-        if (product?.beforeTaxPrice && product.beforeTaxPrice !== null && product.beforeTaxPrice !== "") {
-          const beforeTaxPrice = parseFloat(product.beforeTaxPrice);
-          subtotal += beforeTaxPrice * quantity;
-          // Tax = price - beforeTaxPrice
-          const taxPerUnit = Math.max(0, unitPrice - beforeTaxPrice);
-          tax += Math.floor(taxPerUnit * quantity);
-        } else {
-          // Fallback to unitPrice if beforeTaxPrice not available
-          subtotal += unitPrice * quantity;
-        }
-      } else {
-        // When priceIncludesTax = false: use old calculation
-        subtotal += unitPrice * quantity;
-
-        // Calculate tax using afterTaxPrice
-        if (
-          product?.afterTaxPrice &&
-          product.afterTaxPrice !== null &&
-          product.afterTaxPrice !== ""
-        ) {
-          const afterTaxPrice = parseFloat(product.afterTaxPrice);
-          const taxPerUnit = Math.max(0, afterTaxPrice - unitPrice);
-          tax += Math.floor(taxPerUnit * quantity);
-        }
+  const calculateOrderTotal = useCallback(
+    (order: Order, items: any[]) => {
+      if (!items || items.length === 0) {
+        return Math.floor(Number(order.total || 0));
       }
-    });
 
-    const total = subtotal + tax;
-    return Math.floor(total);
-  }, [products, storeSettings]);
+      const priceIncludesTax = storeSettings?.priceIncludesTax || false;
 
+      let subtotal = 0;
+      let tax = 0;
+
+      items.forEach((item: any) => {
+        const unitPrice = Number(item.unitPrice || 0);
+        const quantity = Number(item.quantity || 0);
+        const product = products?.find((p: any) => p.id === item.productId);
+
+        if (priceIncludesTax) {
+          // When priceIncludesTax = true: subtotal = sum(beforeTaxPrice * quantity)
+          if (
+            product?.beforeTaxPrice &&
+            product.beforeTaxPrice !== null &&
+            product.beforeTaxPrice !== ""
+          ) {
+            const beforeTaxPrice = parseFloat(product.beforeTaxPrice);
+            subtotal += beforeTaxPrice * quantity;
+            // Tax = price - beforeTaxPrice
+            const taxPerUnit = Math.max(0, unitPrice - beforeTaxPrice);
+            tax += Math.floor(taxPerUnit * quantity);
+          } else {
+            // Fallback to unitPrice if beforeTaxPrice not available
+            subtotal += unitPrice * quantity;
+          }
+        } else {
+          // When priceIncludesTax = false: use old calculation
+          subtotal += unitPrice * quantity;
+
+          // Calculate tax using afterTaxPrice
+          if (
+            product?.afterTaxPrice &&
+            product.afterTaxPrice !== null &&
+            product.afterTaxPrice !== ""
+          ) {
+            const afterTaxPrice = parseFloat(product.afterTaxPrice);
+            const taxPerUnit = Math.max(0, afterTaxPrice - unitPrice);
+            tax += Math.floor(taxPerUnit * quantity);
+          }
+        }
+      });
+
+      const total = subtotal + tax;
+      return Math.floor(total);
+    },
+    [products, storeSettings],
+  );
 
   const getActiveOrder = (tableId: number) => {
     if (!orders || !Array.isArray(orders)) return null;
@@ -2361,8 +2367,7 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
           paymentData?.amountReceived?.toString() ||
           Math.floor(orderTotals.total).toString(),
         change: paymentData?.change?.toString() || "0.00",
-        tableNumber:
-          getTableInfo(selectedOrder.tableId)?.tableNumber || "N/A",
+        tableNumber: getTableInfo(selectedOrder.tableId)?.tableNumber || "N/A",
       };
 
       console.log("📄 Table Grid: Receipt preview created with proper format", {
@@ -2939,10 +2944,12 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                   className="flex items-center gap-2 text-sm px-4 py-3 whitespace-nowrap data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-blue-50 transition-all duration-200 rounded-md font-medium border border-transparent data-[state=active]:border-blue-600"
                 >
                   <span className="font-semibold">
-                        {currentLanguage === "ko" ? floor : 
-                         currentLanguage === "en" ? floor.replace(/(\d+)층/, "Floor $1") :
-                         floor.replace(/(\d+)층/, "Tầng $1")}
-                      </span>
+                    {currentLanguage === "ko"
+                      ? floor
+                      : currentLanguage === "en"
+                        ? floor.replace(/(\d+)층/, "Floor $1")
+                        : floor.replace(/(\d+)층/, "Tầng $1")}
+                  </span>
                   <span className="text-xs bg-gray-100 data-[state=active]:bg-blue-400 px-2 py-1 rounded-full">
                     {tablesByFloor[floor].length}
                   </span>
@@ -3062,7 +3069,10 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                                 )}
                               </div>
                               <div className="font-medium text-gray-900">
-                                {Math.floor(Number(activeOrder.total || 0)).toLocaleString("vi-VN")} ₫
+                                {Math.floor(
+                                  Number(activeOrder.total || 0),
+                                ).toLocaleString("vi-VN")}{" "}
+                                ₫
                               </div>
                             </div>
                           )}
@@ -3279,7 +3289,9 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                             </div>
                             <div className="text-right">
                               <div className="text-lg font-semibold text-gray-900">
-                                {Math.floor(unitPrice * quantity).toLocaleString("vi-VN")}{" "}
+                                {Math.floor(
+                                  unitPrice * quantity,
+                                ).toLocaleString("vi-VN")}{" "}
                                 ₫
                               </div>
                               <div className="text-sm text-gray-600">
@@ -3313,13 +3325,14 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                     {t("reports.subtotal")}:
                   </span>
                   <span className="font-medium">
-                    {Number(selectedOrder.subtotal || 0).toLocaleString("vi-VN")} ₫
+                    {Number(selectedOrder.subtotal || 0).toLocaleString(
+                      "vi-VN",
+                    )}{" "}
+                    ₫
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">
-                    {t("reports.tax")}:
-                  </span>
+                  <span className="text-gray-600">{t("reports.tax")}:</span>
                   <span className="font-medium">
                     {Number(selectedOrder.tax || 0).toLocaleString("vi-VN")} ₫
                   </span>
@@ -3330,7 +3343,11 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                       {t("reports.discount")}:
                     </span>
                     <span className="font-medium text-red-600">
-                      -{Number(selectedOrder.discount || 0).toLocaleString("vi-VN")} ₫
+                      -
+                      {Number(selectedOrder.discount || 0).toLocaleString(
+                        "vi-VN",
+                      )}{" "}
+                      ₫
                     </span>
                   </div>
                 )}
@@ -3378,13 +3395,16 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                             item.productName || getProductName(item.productId),
                           price: parseFloat(item.unitPrice || "0"),
                           quantity: item.quantity,
-                          sku:
-                            item.productSku || `SP${item.productId}`,
+                          sku: item.productSku || `SP${item.productId}`,
                           taxRate: (() => {
                             const product = Array.isArray(products)
-                              ? products.find((p: any) => p.id === item.productId)
+                              ? products.find(
+                                  (p: any) => p.id === item.productId,
+                                )
                               : null;
-                            return product?.taxRate ? parseFloat(product.taxRate) : 10;
+                            return product?.taxRate
+                              ? parseFloat(product.taxRate)
+                              : 10;
                           })(),
                           discount: item.discount || "0",
                           discountAmount: item.discount || "0",
@@ -3450,18 +3470,25 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
 
                       try {
                         // Use EXACT database values from selectedOrder - NO calculation
-                        const exactSubtotal = Number(selectedOrder.subtotal || 0);
+                        const exactSubtotal = Number(
+                          selectedOrder.subtotal || 0,
+                        );
                         const exactTax = Number(selectedOrder.tax || 0);
-                        const exactDiscount = Number(selectedOrder.discount || 0);
+                        const exactDiscount = Number(
+                          selectedOrder.discount || 0,
+                        );
                         const exactTotal = Number(selectedOrder.total || 0);
 
-                        console.log("📊 Using EXACT database values for receipt:", {
-                          exactSubtotal,
-                          exactTax, 
-                          exactDiscount,
-                          exactTotal,
-                          source: "database_direct_no_calculation"
-                        });
+                        console.log(
+                          "📊 Using EXACT database values for receipt:",
+                          {
+                            exactSubtotal,
+                            exactTax,
+                            exactDiscount,
+                            exactTotal,
+                            source: "database_direct_no_calculation",
+                          },
+                        );
 
                         // Create receipt data using EXACT database values
                         const processedItems = orderItems.map((item: any) => ({
@@ -3481,7 +3508,9 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                                   (p: any) => p.id === item.productId,
                                 )
                               : null;
-                            return product?.taxRate ? parseFloat(product.taxRate) : 10;
+                            return product?.taxRate
+                              ? parseFloat(product.taxRate)
+                              : 10;
                           })(),
                         }));
 
@@ -3616,7 +3645,7 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
             ? previewReceipt.exactTotal || parseFloat(previewReceipt.total)
             : 0
         }
-        isTitle = {false}
+        isTitle={showReceiptPreview == true ? false : true}
       />
 
       {/* Payment Method Modal - Step 2: Chọn phương thức thanh toán */}
@@ -3976,7 +4005,7 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
           }
           isPreview={!!orderForPayment} // Show as preview if there's an order waiting for payment
           onConfirm={orderForPayment ? handleReceiptConfirm : undefined}
-          isTitle = {false}
+          isTitle={false}
         />
       )}
 
@@ -3994,9 +4023,7 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
             {/* Order Summary */}
             {selectedOrder && (
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-2">
-                  Thông tin đơn hàng
-                </h4>
+                <h4 className="font-medium mb-2">Thông tin đơn hàng</h4>
                 <div className="flex justify-between text-sm">
                   <span>Mã đơn:</span>
                   <span className="font-medium">
@@ -4006,15 +4033,16 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                 <div className="flex justify-between text-sm">
                   <span>Tổng cộng:</span>
                   <span className="font-medium">
-                    {Math.floor(Number(selectedOrder.subtotal || 0)).toLocaleString("vi-VN")} ₫
+                    {Math.floor(
+                      Number(selectedOrder.subtotal || 0),
+                    ).toLocaleString("vi-VN")}{" "}
+                    ₫
                   </span>
                 </div>
                 {selectedOrder.discount &&
                   Number(selectedOrder.discount) > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-red-600">
-                        Giảm giá:
-                      </span>
+                      <span className="text-red-600">Giảm giá:</span>
                       <span className="font-medium text-red-600">
                         -
                         {Math.floor(
@@ -4027,7 +4055,10 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                 <div className="flex justify-between text-sm font-bold border-t pt-2 mt-2">
                   <span>Tổng tiền:</span>
                   <span className="font-bold text-green-600">
-                    {Math.floor(Number(selectedOrder.total || 0)).toLocaleString("vi-VN")} ₫
+                    {Math.floor(
+                      Number(selectedOrder.total || 0),
+                    ).toLocaleString("vi-VN")}{" "}
+                    ₫
                   </span>
                 </div>
               </div>
@@ -4112,12 +4143,18 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                   <div className="flex justify-between text-sm mb-1">
                     <span>Tổng đơn hàng:</span>
                     <span className="font-medium">
-                      {Math.floor(Number(selectedOrder.total || 0)).toLocaleString("vi-VN")} ₫
+                      {Math.floor(
+                        Number(selectedOrder.total || 0),
+                      ).toLocaleString("vi-VN")}{" "}
+                      ₫
                     </span>
                   </div>
                   {(() => {
-                    const finalTotal = Math.floor(Number(selectedOrder.total || 0));
-                    const customerPointsValue = (selectedCustomer.points || 0) * 1000;
+                    const finalTotal = Math.floor(
+                      Number(selectedOrder.total || 0),
+                    );
+                    const customerPointsValue =
+                      (selectedCustomer.points || 0) * 1000;
 
                     return customerPointsValue >= finalTotal ? (
                       <div className="text-green-600 text-sm">
@@ -4126,7 +4163,10 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                     ) : (
                       <div className="text-orange-600 text-sm">
                         ⚠ Cần thanh toán thêm:{" "}
-                        {(finalTotal - customerPointsValue).toLocaleString("vi-VN")} ₫
+                        {(finalTotal - customerPointsValue).toLocaleString(
+                          "vi-VN",
+                        )}{" "}
+                        ₫
                       </div>
                     );
                   })()}
@@ -4272,7 +4312,10 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                   <div className="flex justify-between">
                     <span>Tổng đơn hàng:</span>
                     <span className="font-medium">
-                      {Math.floor(Number(selectedOrder?.total || 0)).toLocaleString("vi-VN")} ₫
+                      {Math.floor(
+                        Number(selectedOrder?.total || 0),
+                      ).toLocaleString("vi-VN")}{" "}
+                      ₫
                     </span>
                   </div>
                   <div className="flex justify-between text-blue-600">
@@ -4281,9 +4324,9 @@ export function TableGrid({ onTableSelect, selectedTableId }: TableGridProps) {
                       {mixedPaymentData.pointsToUse.toLocaleString()}P
                       <span className="ml-1">
                         (-
-                        {(
-                          mixedPaymentData.pointsToUse * 1000
-                        ).toLocaleString("vi-VN")}{" "}
+                        {(mixedPaymentData.pointsToUse * 1000).toLocaleString(
+                          "vi-VN",
+                        )}{" "}
                         ₫)
                       </span>
                     </span>
