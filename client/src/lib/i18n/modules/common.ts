@@ -488,6 +488,7 @@ export const commonTranslations: { [key: string]: CommonTranslations } = {
     product: "상품",
     combo: "콤보",
     service: "서비스",
+    serving: "서빙 중",
     create: "생성",
     update: "업데이트",
     confimremote:
@@ -957,6 +958,7 @@ export const commonTranslations: { [key: string]: CommonTranslations } = {
     deselectAll: "Deselect all",
     bulkActions: "Bulk actions",
     export: "Export",
+    serving: "Serving",
     import: "Import",
     download: "Download",
     upload: "Upload",
@@ -1202,6 +1204,7 @@ export const commonTranslations: { [key: string]: CommonTranslations } = {
     paymentMethodGeneric: "Phương thức thanh toán",
     paid: "Đã thanh toán",
     changeAmount: "Tiền thối",
+    serving: "Đang phục vụ",
 
     // Subtotal
     subtotalLabel: "Tổng phụ:",

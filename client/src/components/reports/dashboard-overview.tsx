@@ -62,7 +62,12 @@ interface DashboardStats {
   totalOrdersInRange: number;
   dateRange: string;
   paymentMethods: { [key: string]: { count: number; total: number } };
-  topProducts: Array<{ name: string; quantity: number; revenue: number; unitPrice: string }>; // Modified to include unitPrice
+  topProducts: Array<{
+    name: string;
+    quantity: number;
+    revenue: number;
+    unitPrice: string;
+  }>; // Modified to include unitPrice
 }
 
 export function DashboardOverview() {
@@ -78,7 +83,7 @@ export function DashboardOverview() {
   const { data: ordersData, isLoading: ordersLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders");
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
@@ -90,7 +95,7 @@ export function DashboardOverview() {
   const { data: orderItemsData, isLoading: orderItemsLoading } = useQuery({
     queryKey: ["order-items"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/order-items");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items");
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }
@@ -103,7 +108,7 @@ export function DashboardOverview() {
     queryKey: ["orders-date-range", dateRange.start, dateRange.end],
     queryFn: async () => {
       const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders/date-range/${dateRange.start}/${dateRange.end}`,
+        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch orders in date range");
@@ -116,7 +121,7 @@ export function DashboardOverview() {
   const { data: tablesData } = useQuery({
     queryKey: ["tables"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/tables");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables");
       if (!response.ok) {
         throw new Error("Failed to fetch tables");
       }
@@ -175,47 +180,38 @@ export function DashboardOverview() {
     ).length;
 
     // Calculate revenues with proper priceIncludeTax handling
-    const completedOrdersRevenue = completedOrders.reduce(
-      (sum, order) => {
-        const orderTotal = parseFloat(order.total || "0");
-        const orderTax = parseFloat(order.tax || "0");
-        const priceIncludeTax = order.priceIncludeTax === true;
+    const completedOrdersRevenue = completedOrders.reduce((sum, order) => {
+      const orderTotal = parseFloat(order.total || "0");
+      const orderTax = parseFloat(order.tax || "0");
+      const priceIncludeTax = order.priceIncludeTax === true;
 
-        // If price includes tax, revenue = total - tax
-        // If price doesn't include tax, revenue = total (already net of tax)
-        const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
-        return sum + revenue;
-      },
-      0,
-    );
+      // If price includes tax, revenue = total - tax
+      // If price doesn't include tax, revenue = total (already net of tax)
+      const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
+      return sum + revenue;
+    }, 0);
 
-    const servingOrdersRevenue = servingOrders.reduce(
-      (sum, order) => {
-        const orderTotal = parseFloat(order.total || "0");
-        const orderTax = parseFloat(order.tax || "0");
-        const priceIncludeTax = order.priceIncludeTax === true;
+    const servingOrdersRevenue = servingOrders.reduce((sum, order) => {
+      const orderTotal = parseFloat(order.total || "0");
+      const orderTax = parseFloat(order.tax || "0");
+      const priceIncludeTax = order.priceIncludeTax === true;
 
-        // If price includes tax, revenue = total - tax
-        // If price doesn't include tax, revenue = total (already net of tax)
-        const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
-        return sum + revenue;
-      },
-      0,
-    );
+      // If price includes tax, revenue = total - tax
+      // If price doesn't include tax, revenue = total (already net of tax)
+      const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
+      return sum + revenue;
+    }, 0);
 
-    const cancelledOrdersRevenue = cancelledOrders.reduce(
-      (sum, order) => {
-        const orderTotal = parseFloat(order.total || "0");
-        const orderTax = parseFloat(order.tax || "0");
-        const priceIncludeTax = order.priceIncludeTax === true;
+    const cancelledOrdersRevenue = cancelledOrders.reduce((sum, order) => {
+      const orderTotal = parseFloat(order.total || "0");
+      const orderTax = parseFloat(order.tax || "0");
+      const priceIncludeTax = order.priceIncludeTax === true;
 
-        // If price includes tax, revenue = total - tax
-        // If price doesn't include tax, revenue = total (already net of tax)
-        const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
-        return sum + revenue;
-      },
-      0,
-    );
+      // If price includes tax, revenue = total - tax
+      // If price doesn't include tax, revenue = total (already net of tax)
+      const revenue = priceIncludeTax ? orderTotal - orderTax : orderTotal;
+      return sum + revenue;
+    }, 0);
 
     const estimatedRevenue = completedOrdersRevenue + servingOrdersRevenue;
 
@@ -273,7 +269,12 @@ export function DashboardOverview() {
 
     // Calculate top products
     const productStats: {
-      [key: string]: { quantity: number; revenue: number; unitPrice: string }; // Added unitPrice
+      [key: string]: {
+        quantity: number;
+        revenue: number;
+        unitPrice: string;
+        total: number;
+      }; // Added unitPrice
     } = {};
 
     // Get order items for completed orders in date range
@@ -286,55 +287,59 @@ export function DashboardOverview() {
       const productName = item.productName;
       const unitPrice = parseFloat(item.unitPrice || "0");
       const quantity = item.quantity;
-      const itemTotal = parseFloat(item.total || "0");
 
       if (!productStats[productName]) {
         productStats[productName] = {
           quantity: 0,
           revenue: 0,
           unitPrice: item.unitPrice,
-          totalDiscount: 0,
-          totalTax: 0,
-          priceIncludeTax: false
         };
       }
 
-      // Find the order for this item to check priceIncludeTax
+      // Find the order to get order-level discount
       const order = completedOrders.find((o) => o.id === item.orderId);
-      const priceIncludeTax = order?.priceIncludeTax === true;
-
-      // Calculate item discount
-      let itemDiscount = 0;
-      if (order && parseFloat(order.discount || "0") > 0) {
-        const orderDiscount = parseFloat(order.discount || "0");
-        const orderSubtotal = parseFloat(order.subtotal || "0");
-        if (orderSubtotal > 0) {
-          itemDiscount = (orderDiscount * itemTotal) / orderSubtotal;
+      const orderDiscount = parseFloat(order?.discount || "0");
+      
+      // Calculate item discount by distributing order discount proportionally
+      let itemDiscountAmount = 0;
+      if (orderDiscount > 0 && order) {
+        // Calculate total before discount for this order
+        const orderItems = relevantOrderItems.filter(i => i.orderId === order.id);
+        const totalBeforeDiscount = orderItems.reduce((sum, itm) => {
+          return sum + (parseFloat(itm.unitPrice || "0") * itm.quantity);
+        }, 0);
+        
+        // Find if this is the last item in the order
+        const currentIndex = orderItems.findIndex(i => i.id === item.id);
+        const isLastItem = currentIndex === orderItems.length - 1;
+        
+        if (isLastItem) {
+          // Last item: total discount - sum of all previous discounts
+          let previousDiscounts = 0;
+          for (let i = 0; i < orderItems.length - 1; i++) {
+            const prevItem = orderItems[i];
+            const prevItemTotal = parseFloat(prevItem.unitPrice || "0") * prevItem.quantity;
+            const prevItemDiscount = totalBeforeDiscount > 0
+              ? Math.round((orderDiscount * prevItemTotal) / totalBeforeDiscount)
+              : 0;
+            previousDiscounts += prevItemDiscount;
+          }
+          itemDiscountAmount = orderDiscount - previousDiscounts;
+        } else {
+          // Regular calculation for non-last items
+          const itemTotal = unitPrice * quantity;
+          itemDiscountAmount = totalBeforeDiscount > 0
+            ? Math.round((orderDiscount * itemTotal) / totalBeforeDiscount)
+            : 0;
         }
       }
 
-      // Calculate item tax
-      let itemTax = 0;
-      if (order) {
-        const orderTax = parseFloat(order.tax || "0");
-        const orderSubtotal = parseFloat(order.subtotal || "0");
-        if (orderSubtotal > 0) {
-          itemTax = (orderTax * itemTotal) / orderSubtotal;
-        }
-      }
-
-      let itemRevenue = itemTotal;
-      if (priceIncludeTax) {
-        // If price includes tax: revenue = total - tax
-        itemRevenue = itemTotal - itemTax;
-      }
+      // Calculate revenue: price * quantity - distributed discount
+      const itemRevenue = (unitPrice * quantity) - itemDiscountAmount;
 
       productStats[productName].quantity += quantity;
       productStats[productName].revenue += itemRevenue;
-      productStats[productName].totalDiscount += itemDiscount;
-      productStats[productName].totalTax += itemTax;
       productStats[productName].unitPrice = item.unitPrice;
-      productStats[productName].priceIncludeTax = priceIncludeTax;
     });
 
     const topProducts = Object.entries(productStats)
@@ -375,7 +380,8 @@ export function DashboardOverview() {
 
   const formatCurrency = (amount: number | string) => {
     // Ensure amount is treated as a number, default to 0 if parsing fails
-    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    const numericAmount =
+      typeof amount === "string" ? parseFloat(amount) : amount;
     const finalAmount = isNaN(numericAmount) ? 0 : numericAmount;
 
     return new Intl.NumberFormat("vi-VN", {
@@ -420,7 +426,9 @@ export function DashboardOverview() {
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-gray-600 text-sm">{t("reports.revenueLabel")}</p>
+                  <p className="text-gray-600 text-sm">
+                    {t("reports.revenueLabel")}
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(dashboardStats.totalSalesRevenue)}
                   </p>
@@ -429,19 +437,24 @@ export function DashboardOverview() {
                   <TrendingUp className="w-4 h-4" />
                   {(() => {
                     // Giả sử doanh thu hôm qua (có thể fetch từ API sau)
-                    const yesterdayRevenue = dashboardStats.totalSalesRevenue * 0.85; // Mock data
+                    const yesterdayRevenue =
+                      dashboardStats.totalSalesRevenue * 0.85; // Mock data
                     const todayRevenue = dashboardStats.totalSalesRevenue;
 
                     if (yesterdayRevenue === 0) return "+0%";
 
-                    const percentChange = ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100;
+                    const percentChange =
+                      ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) *
+                      100;
                     const isPositive = percentChange >= 0;
 
-                    return `${isPositive ? '+' : ''}${percentChange.toFixed(1)}% ${isPositive ? '↑' : '↓'}`;
+                    return `${isPositive ? "+" : ""}${percentChange.toFixed(1)}% ${isPositive ? "↑" : "↓"}`;
                   })()}
                 </div>
               </div>
-              <div className="text-xs text-gray-500">{t("reports.comparedToYesterday")}</div>
+              <div className="text-xs text-gray-500">
+                {t("reports.comparedToYesterday")}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -459,19 +472,25 @@ export function DashboardOverview() {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">{t("reports.paid")}</span>
+                <span className="text-gray-600 text-sm">
+                  {t("reports.paid")}
+                </span>
                 <span className="font-semibold">
                   {formatCurrency(dashboardStats.totalSalesRevenue)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">{t("reports.serving")}</span>
+                <span className="text-gray-600 text-sm">
+                  {t("reports.serving")}
+                </span>
                 <span className="font-semibold">
                   {formatCurrency(dashboardStats.servingRevenue)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">{t("reports.cancelled")}</span>
+                <span className="text-gray-600 text-sm">
+                  {t("reports.cancelled")}
+                </span>
                 <span className="font-semibold text-red-600">
                   {formatCurrency(dashboardStats.cancelledRevenue)}
                 </span>
@@ -486,7 +505,9 @@ export function DashboardOverview() {
         <Card className="border-0 shadow-md">
           <CardContent className="p-4">
             <div className="text-center space-y-2">
-              <div className="text-sm text-gray-600">{t("reports.tablesInUse")}</div>
+              <div className="text-sm text-gray-600">
+                {t("reports.tablesInUse")}
+              </div>
               <div className="text-2xl font-bold text-green-600">
                 {getOccupiedTablesCount()}/{getTotalTablesCount()}
               </div>
@@ -535,7 +556,9 @@ export function DashboardOverview() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">{t("reports.customers")}</div>
+                <div className="text-sm text-gray-600">
+                  {t("reports.customers")}
+                </div>
                 <div className="text-2xl font-bold text-green-600">
                   {dashboardStats.periodCustomerCount}
                 </div>
@@ -626,33 +649,16 @@ export function DashboardOverview() {
                     "bg-red-500",
                   ];
                   const totalRevenue = dashboardStats.topProducts.reduce(
-                    (sum, p) => sum + parseFloat(p.revenue.toString() || "0"), // Ensure revenue is treated as number
+                    (sum, p) => sum + p.revenue,
                     0,
                   );
                   const percentage =
                     totalRevenue > 0
-                      ? ((parseFloat(product.revenue.toString() || "0") / totalRevenue) * 100).toFixed(0)
+                      ? ((product.revenue / totalRevenue) * 100).toFixed(0)
                       : "0";
 
-                  // Calculate display price based on priceIncludeTax
-                  let displayPrice = 0;
-                  const unitPrice = parseFloat(product.unitPrice);
-                  const quantity = product.quantity;
-                  
-                  if (product.priceIncludeTax) {
-                    // priceIncludeTax = true: price = unitPrice * quantity / (1 + taxRate / 100)
-                    const avgTax = product.totalTax / quantity;
-                    const taxRate = avgTax > 0 ? (avgTax / (unitPrice - avgTax)) * 100 : 0;
-                    displayPrice = (unitPrice * quantity) / (1 + taxRate / 100);
-                  } else {
-                    // priceIncludeTax = false: price = unitPrice * quantity + (unitPrice * quantity * taxRate / 100)
-                    const avgTax = product.totalTax / quantity;
-                    const taxRate = avgTax > 0 ? (avgTax / unitPrice) * 100 : 0;
-                    displayPrice = unitPrice * quantity + (unitPrice * quantity * taxRate / 100);
-                  }
-
                   return (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3" key={index}>
                       <div
                         className={`w-3 h-3 rounded-full ${colors[index] || "bg-gray-500"}`}
                       ></div>
@@ -661,7 +667,7 @@ export function DashboardOverview() {
                           {product.name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {formatCurrency(Math.max(0, displayPrice))}
+                          {formatCurrency(product.revenue)}
                         </div>
                       </div>
                       <div className="text-xs text-gray-500">{percentage}%</div>
@@ -682,7 +688,9 @@ export function DashboardOverview() {
       <div className="px-4">
         <Card className="border-0 shadow-md">
           <CardContent className="p-4">
-            <h3 className="font-semibold mb-4">{t("reports.paymentMethods")}</h3>
+            <h3 className="font-semibold mb-4">
+              {t("reports.paymentMethods")}
+            </h3>
 
             <div className="space-y-3">
               {Object.entries(dashboardStats.paymentMethods).length > 0 ? (
@@ -703,7 +711,8 @@ export function DashboardOverview() {
                       </div>
                       <div className="text-right">
                         <div className="font-semibold">
-                          {t("common.totalCustomerPayment")}: {formatCurrency(data.total)}
+                          {t("common.totalCustomerPayment")}:{" "}
+                          {formatCurrency(data.total)}
                         </div>
                       </div>
                     </div>

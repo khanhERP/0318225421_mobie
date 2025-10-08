@@ -61,7 +61,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
     queryKey: ["daily-sales-orders", dateRange.start, dateRange.end],
     queryFn: async () => {
       const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders/date-range/${dateRange.start}/${dateRange.end}`,
+        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
@@ -91,7 +91,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
     queryKey: ["order-items", selectedOrder?.id],
     queryFn: async () => {
       if (!selectedOrder?.id) return [];
-      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/order-items/${selectedOrder.id}`);
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items/${selectedOrder.id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }

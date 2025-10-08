@@ -39,7 +39,7 @@ export default function PurchasesPage({ onLogout }: PurchasesPageProps) {
 
   // Fetch purchase receipts with filters
   const { data: purchaseOrders = [], isLoading: isOrdersLoading } = useQuery<PurchaseOrder[]>({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-receipts", { startDate, endDate, productFilter, searchTerm }],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts", { startDate, endDate, productFilter, searchTerm }],
     queryFn: async () => {
       const params = new URLSearchParams();
       
@@ -56,7 +56,7 @@ export default function PurchasesPage({ onLogout }: PurchasesPageProps) {
         params.append('search', productFilter);
       }
       
-      const url = `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-receipts${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts${params.toString() ? `?${params.toString()}` : ''}`;
       console.log('🔍 Fetching purchase receipts with filters:', url);
       
       const response = await fetch(url);
@@ -76,7 +76,7 @@ export default function PurchasesPage({ onLogout }: PurchasesPageProps) {
 
   // Fetch suppliers for filtering
   const { data: suppliers = [] } = useQuery<Supplier[]>({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/suppliers"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers"],
   });
 
   // Calculate dashboard statistics
@@ -172,7 +172,7 @@ export default function PurchasesPage({ onLogout }: PurchasesPageProps) {
   // Bulk delete mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: async (orderIds: number[]) => {
-      return apiRequest("POST", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-receipts/bulk-delete", {
+      return apiRequest("POST", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts/bulk-delete", {
         orderIds
       });
     },
@@ -189,7 +189,7 @@ export default function PurchasesPage({ onLogout }: PurchasesPageProps) {
       setSelectedOrders(new Set());
       
       // Refetch purchase receipts
-      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/purchase-receipts"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts"] });
       
       // Close dialog
       setShowDeleteDialog(false);

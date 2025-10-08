@@ -57,13 +57,13 @@ export function PointsManagementModal({ isOpen, onClose }: PointsManagementModal
 
   // Fetch customers
   const { data: customers, isLoading: customersLoading } = useQuery<Customer[]>({
-    queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/customers'],
+    queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers'],
     enabled: isOpen,
   });
 
   // Fetch point transactions history
   const { data: pointTransactions, isLoading: transactionsLoading } = useQuery<PointTransaction[]>({
-    queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/point-transactions'],
+    queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/point-transactions'],
     enabled: isOpen && activeTab === 'history',
   });
 
@@ -75,7 +75,7 @@ export function PointsManagementModal({ isOpen, onClose }: PointsManagementModal
       type: string; 
       description: string 
     }) => {
-      const response = await apiRequest('POST', 'https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/customers/adjust-points', {
+      const response = await apiRequest('POST', 'https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers/adjust-points', {
         customerId,
         points,
         type,
@@ -84,8 +84,8 @@ export function PointsManagementModal({ isOpen, onClose }: PointsManagementModal
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/customers'] });
-      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/point-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers'] });
+      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/point-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['customer-points', selectedCustomer?.id] });
       toast({
         title: t("customers.customerUpdated"),
@@ -107,15 +107,15 @@ export function PointsManagementModal({ isOpen, onClose }: PointsManagementModal
   // Point payment mutation
   const processPaymentMutation = useMutation({
     mutationFn: async ({ customerId, points }: { customerId: number; points: number }) => {
-      const response = await apiRequest('POST', 'https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/customers/redeem-points', {
+      const response = await apiRequest('POST', 'https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers/redeem-points', {
         customerId,
         points
       });
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/customers'] });
-      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/point-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers'] });
+      queryClient.invalidateQueries({ queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/point-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['customer-points', selectedCustomer?.id] });
       toast({
         title: t("common.success"),

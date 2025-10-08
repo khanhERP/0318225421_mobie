@@ -101,7 +101,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders");
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
@@ -113,7 +113,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: orderItems = [] } = useQuery({
     queryKey: ["order-items"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/order-items");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items");
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }
@@ -125,7 +125,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: tables = [] } = useQuery({
     queryKey: ["tables"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/tables");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables");
       if (!response.ok) {
         throw new Error("Failed to fetch tables");
       }
@@ -137,7 +137,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/products");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -192,7 +192,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       case "preparing":
         return t("orders.status.preparing");
       case "served":
-        return t("orders.status.served");
+        return t("common.serving");
       case "cancelled":
         return t("orders.status.cancelled");
       default:
@@ -271,13 +271,13 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
 
   // Handle order selection
   const handleOrderSelect = async (order: Order) => {
-    console.log('📋 Order Details:', {
+    console.log("📋 Order Details:", {
       orderNumber: order.orderNumber,
       priceIncludeTax: order.priceIncludeTax,
       subtotal: order.subtotal,
       tax: order.tax,
       total: order.total,
-      discount: order.discount
+      discount: order.discount,
     });
     setSelectedOrder(order);
     setShowOrderDialog(true);
@@ -292,7 +292,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       orderId: number;
       status: string;
     }) => {
-      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/orders/${orderId}/status`, {
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -426,7 +426,10 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
                                 {t("orders.totalAmount")}
                               </span>
                               <p className="font-semibold text-green-600">
-                                {formatCurrency(Math.round(Number(order.total)))} ₫
+                                {formatCurrency(
+                                  Math.round(Number(order.total)),
+                                )}{" "}
+                                ₫
                               </p>
                             </div>
                           </div>
@@ -521,7 +524,8 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
                               {t("orders.totalAmount")}
                             </span>
                             <p className="font-semibold text-green-600">
-                              {formatCurrency(Math.round(Number(order.total)))} ₫
+                              {formatCurrency(Math.round(Number(order.total)))}{" "}
+                              ₫
                             </p>
                           </div>
                         </div>
@@ -610,9 +614,12 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
                     const unitPrice = Number(item.unitPrice || 0);
                     const quantity = Number(item.quantity || 0);
                     const displayTotal = unitPrice * quantity;
-                    
+
                     return (
-                      <div key={item.id} className="flex justify-between text-sm">
+                      <div
+                        key={item.id}
+                        className="flex justify-between text-sm"
+                      >
                         <span>
                           {item.productName} x{item.quantity}
                         </span>
@@ -628,28 +635,48 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t("orders.subtotal")}:</span>
-                  <span>{formatCurrency(Math.round(Number(selectedOrder.subtotal)))}</span>
+                  <span>
+                    {formatCurrency(
+                      Math.round(
+                        Number(selectedOrder.subtotal || 0) +
+                          Number(selectedOrder.tax || 0) +
+                          Number(selectedOrder.discount || 0),
+                      ),
+                    )}
+                  </span>
                 </div>
-                
+
                 {selectedOrder.tax && Number(selectedOrder.tax) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t("orders.tax")}:</span>
-                    <span>{formatCurrency(Math.round(Number(selectedOrder.tax)))}</span>
+                    <span>
+                      {formatCurrency(Math.round(Number(selectedOrder.tax)))}
+                    </span>
                   </div>
                 )}
-                
-                {selectedOrder.discount && Number(selectedOrder.discount) > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">{t("orders.discount")}:</span>
-                    <span className="text-red-600">-{formatCurrency(Math.round(Number(selectedOrder.discount)))}</span>
-                  </div>
-                )}
-                
+
+                {selectedOrder.discount &&
+                  Number(selectedOrder.discount) > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">
+                        {t("orders.discount")}:
+                      </span>
+                      <span className="text-red-600">
+                        -
+                        {formatCurrency(
+                          Math.round(Number(selectedOrder.discount)),
+                        )}
+                      </span>
+                    </div>
+                  )}
+
                 <Separator />
-                
+
                 <div className="flex justify-between font-semibold">
                   <span>{t("orders.totalAmount")}:</span>
-                  <span>{formatCurrency(Math.round(Number(selectedOrder.total)))}</span>
+                  <span>
+                    {formatCurrency(Math.round(Number(selectedOrder.total)))}
+                  </span>
                 </div>
               </div>
 
