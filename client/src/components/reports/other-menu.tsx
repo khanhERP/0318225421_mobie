@@ -70,7 +70,15 @@ export function OtherMenu({ onBack, onLogout }: OtherMenuProps) {
             variant="ghost"
             size="icon"
             className="text-white hover:bg-green-700"
-            onClick={onBack}
+            onClick={() => {
+              // Clear URL parameters when going back
+              if (window.location.search) {
+                const url = new URL(window.location.href);
+                url.search = "";
+                window.history.pushState({}, "", url.toString());
+              }
+              onBack();
+            }}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>

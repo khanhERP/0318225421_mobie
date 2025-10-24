@@ -25,7 +25,15 @@ export function MobileBottomNav({ onReportsClick }: MobileBottomNavProps) {
       icon: BarChart3,
       label: t("nav.reports"),
       key: "reports",
-      onClick: onReportsClick,
+      onClick: () => {
+        // Clear URL parameters before opening reports menu
+        if (window.location.search) {
+          const url = new URL(window.location.href);
+          url.search = "";
+          window.history.pushState({}, "", url.toString());
+        }
+        onReportsClick?.();
+      },
       isActive: location === "/reports" && (
         window.location.search === "?tab=sales" ||
         window.location.search === "?tab=menu" ||
