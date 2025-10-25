@@ -66,7 +66,10 @@ export default function ReportsPage({ onLogout }: ReportsPageProps) {
       setShowReportsMenu(false);
       setShowDailySalesReport(false);
       setShowMenuReports(false);
-    } else if (tab && ["overview", "sales", "table", "saleschart"].includes(tab)) {
+    } else if (
+      tab &&
+      ["overview", "sales", "table", "saleschart"].includes(tab)
+    ) {
       setActiveTab(tab);
       setShowReportsMenu(false); // Hide reports menu when navigating to specific tab
       setShowDailySalesReport(false); // Hide daily sales report when navigating to specific tab
@@ -80,7 +83,7 @@ export default function ReportsPage({ onLogout }: ReportsPageProps) {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
-      
+
       if (tab === "menu") {
         setShowMenuReports(true);
         setShowReportsMenu(false);
@@ -91,7 +94,10 @@ export default function ReportsPage({ onLogout }: ReportsPageProps) {
         setShowReportsMenu(false);
         setShowDailySalesReport(false);
         setShowMenuReports(false);
-      } else if (tab && ["overview", "sales", "table", "saleschart"].includes(tab)) {
+      } else if (
+        tab &&
+        ["overview", "sales", "table", "saleschart"].includes(tab)
+      ) {
         setActiveTab(tab);
         setShowReportsMenu(false);
         setShowDailySalesReport(false);
@@ -135,6 +141,7 @@ export default function ReportsPage({ onLogout }: ReportsPageProps) {
       <OtherMenu
         onBack={() => {
           setShowOtherMenu(false);
+          setActiveTab("overview");
         }}
         onLogout={() => {
           // Clear any local state first

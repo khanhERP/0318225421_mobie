@@ -163,7 +163,10 @@ export function DashboardOverview() {
 
     // Filter serving orders
     const servingOrders = ordersData.filter(
-      (order) => order.status === "served" || order.status === "preparing",
+      (order) =>
+        order.status === "served" ||
+        order.status === "preparing" ||
+        order.status === "pending",
     );
 
     // Filter cancelled orders from date range
@@ -299,43 +302,50 @@ export function DashboardOverview() {
       // Find the order to get order-level discount
       const order = completedOrders.find((o) => o.id === item.orderId);
       const orderDiscount = parseFloat(order?.discount || "0");
-      
+
       // Calculate item discount by distributing order discount proportionally
       let itemDiscountAmount = 0;
       if (orderDiscount > 0 && order) {
         // Calculate total before discount for this order
-        const orderItems = relevantOrderItems.filter(i => i.orderId === order.id);
+        const orderItems = relevantOrderItems.filter(
+          (i) => i.orderId === order.id,
+        );
         const totalBeforeDiscount = orderItems.reduce((sum, itm) => {
-          return sum + (parseFloat(itm.unitPrice || "0") * itm.quantity);
+          return sum + parseFloat(itm.unitPrice || "0") * itm.quantity;
         }, 0);
-        
+
         // Find if this is the last item in the order
-        const currentIndex = orderItems.findIndex(i => i.id === item.id);
+        const currentIndex = orderItems.findIndex((i) => i.id === item.id);
         const isLastItem = currentIndex === orderItems.length - 1;
-        
+
         if (isLastItem) {
           // Last item: total discount - sum of all previous discounts
           let previousDiscounts = 0;
           for (let i = 0; i < orderItems.length - 1; i++) {
             const prevItem = orderItems[i];
-            const prevItemTotal = parseFloat(prevItem.unitPrice || "0") * prevItem.quantity;
-            const prevItemDiscount = totalBeforeDiscount > 0
-              ? Math.round((orderDiscount * prevItemTotal) / totalBeforeDiscount)
-              : 0;
+            const prevItemTotal =
+              parseFloat(prevItem.unitPrice || "0") * prevItem.quantity;
+            const prevItemDiscount =
+              totalBeforeDiscount > 0
+                ? Math.round(
+                    (orderDiscount * prevItemTotal) / totalBeforeDiscount,
+                  )
+                : 0;
             previousDiscounts += prevItemDiscount;
           }
           itemDiscountAmount = orderDiscount - previousDiscounts;
         } else {
           // Regular calculation for non-last items
           const itemTotal = unitPrice * quantity;
-          itemDiscountAmount = totalBeforeDiscount > 0
-            ? Math.round((orderDiscount * itemTotal) / totalBeforeDiscount)
-            : 0;
+          itemDiscountAmount =
+            totalBeforeDiscount > 0
+              ? Math.round((orderDiscount * itemTotal) / totalBeforeDiscount)
+              : 0;
         }
       }
 
       // Calculate revenue: price * quantity - distributed discount
-      const itemRevenue = (unitPrice * quantity) - itemDiscountAmount;
+      const itemRevenue = unitPrice * quantity - itemDiscountAmount;
 
       productStats[productName].quantity += quantity;
       productStats[productName].revenue += itemRevenue;

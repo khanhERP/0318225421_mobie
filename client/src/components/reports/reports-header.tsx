@@ -37,8 +37,9 @@ export function ReportsHeader({
     <header className="fixed top-0 left-0 right-0 bg-green-500 text-white shadow-lg z-40 h-16">
       <div className="max-w-full mx-auto px-4 h-full flex items-center justify-between">
         {/* Left side - Dynamic title */}
-        <div className="flex items-center">
+        <div className="flex flex-col items-end">
           <h1 className="text-xl font-bold text-white">{title}</h1>
+          <span className="text-[0.819rem] text-white opacity-90">매장이름</span>
         </div>
 
         {/* Center - Date info */}
