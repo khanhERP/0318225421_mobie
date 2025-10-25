@@ -47,7 +47,7 @@ export function ReportsHeader({
         <div className="flex flex-col items-end">
           <h1 className="text-xl font-bold text-white">{title}</h1>
           <span className="text-[0.819rem] text-white opacity-90">
-            {storeSettings?.storeName || "매장이름"}
+            {storeSettings?.storeName || ""}
           </span>
         </div>
 
