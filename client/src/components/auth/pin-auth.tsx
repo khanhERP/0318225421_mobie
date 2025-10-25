@@ -28,23 +28,49 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
 
 
   // Fetch store settings để lấy PIN
-  const { data: storeData } = useQuery({
+  const { data: storeData, isLoading: isLoadingSettings, error: settingsError } = useQuery({
     queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
     queryFn: async () => {
       try {
+        console.log("🔍 Fetching store settings from API...");
         const response = await apiRequest("GET", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+        
+        console.log("📡 Store settings response status:", response.status);
+        
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json(); // Chờ lấy JSON
-        console.log("Store settings:", data);
+        
+        // Get response text first to check if it's valid JSON
+        const responseText = await response.text();
+        console.log("📄 Store settings response text:", responseText.substring(0, 200));
+        
+        if (!responseText || responseText.trim() === '') {
+          throw new Error('Empty response from server');
+        }
+        
+        const data = JSON.parse(responseText);
+        console.log("✅ Store settings parsed successfully:", data);
         return data;
       } catch (error) {
-        console.error("Failed to fetch store settings:", error);
-        throw error; // Ném lỗi để query có thể xử lý tiếp
+        console.error("❌ Failed to fetch store settings:", error);
+        throw error;
       }
     },
+    retry: 2,
+    retryDelay: 1000,
   });
+
+  // Hiển thị lỗi nếu không thể load store settings
+  useEffect(() => {
+    if (settingsError) {
+      toast({
+        title: "Lỗi tải cài đặt",
+        description: "Không thể tải thông tin cài đặt cửa hàng. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    }
+  }, [settingsError, toast]);
 
   useEffect(() => {
     // Kiểm tra nếu đã đăng nhập trong session này
@@ -69,10 +95,20 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
     setIsLoading(true);
 
     try {
-      console.log("Submitting PIN:", pin);
-      console.log("storeData:", storeData);
-      // Kiểm tra PIN với dữ liệu từ store settings
-      if (storeData?.pinCode && pin === storeData.pinCode) {
+      console.log("🔐 Verifying PIN via API...");
+      
+      // Call API to verify PIN
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/auth/verify-pin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ pin }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         // Lưu trạng thái đăng nhập vào sessionStorage
         sessionStorage.setItem("pinAuthenticated", "true");
 
@@ -81,21 +117,25 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
           description: "Chào mừng bạn đến với hệ thống POS",
         });
 
+        console.log("✅ PIN verification successful");
         onAuthSuccess();
       } else {
         toast({
           title: "Mã PIN không đúng",
-          description: "Vui lòng kiểm tra lại mã PIN",
+          description: data.message || "Vui lòng kiểm tra lại mã PIN",
           variant: "destructive",
         });
         setPin("");
+        console.log("❌ PIN verification failed");
       }
     } catch (error) {
+      console.error("❌ PIN verification error:", error);
       toast({
         title: "Lỗi hệ thống",
-        description: "Có lỗi xảy ra khi xác thực",
+        description: "Có lỗi xảy ra khi xác thực. Vui lòng thử lại.",
         variant: "destructive",
       });
+      setPin("");
     } finally {
       setIsLoading(false);
     }
@@ -165,7 +205,7 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
                   className="pr-10 text-center text-lg tracking-widest font-mono"
                   maxLength={6}
                   autoFocus
-                  disabled={isLoading}
+                  disabled={isLoading || isLoadingSettings}
                 />
                 <Button
                   type="button"
@@ -186,9 +226,14 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
             <Button
               type="submit"
               className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold"
-              disabled={isLoading || pin.length < 4}
+              disabled={isLoading || isLoadingSettings || pin.length < 4}
             >
-              {isLoading ? (
+              {isLoadingSettings ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Đang tải cài đặt...
+                </div>
+              ) : isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   Đang xác thực...
@@ -221,7 +266,7 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
                     setPin((prev) => prev + num);
                   }
                 }}
-                disabled={isLoading || pin.length >= 6}
+                disabled={isLoading || isLoadingSettings || pin.length >= 6}
               >
                 {num}
               </Button>
