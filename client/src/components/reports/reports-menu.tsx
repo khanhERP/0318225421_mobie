@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n";
 import logoPath from "@assets/EDPOS_1753091767028.png";
+import { MoreHorizontal } from "lucide-react";
 
 interface ReportsMenuProps {
   onBack: () => void;
@@ -178,7 +179,6 @@ export function ReportsMenu({
           <div
             className="flex flex-col items-center text-gray-500 hover:text-blue-600 cursor-pointer"
             onClick={() => {
-              // Navigate to other menu by triggering the parent callback
               if (window.location.pathname === "/reports") {
                 const url = new URL(window.location);
                 url.searchParams.set("tab", "other");
@@ -189,22 +189,11 @@ export function ReportsMenu({
               }
             }}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-6 h-6"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <circle cx="12" cy="12" r="4"></circle>
-            </svg>
-            <span className="text-xs">{t("common.settings")}</span>
+            {(() => {
+              const Icon = MoreHorizontal;
+              return <Icon className="w-5 h-5 mb-1 flex-shrink-0" />;
+            })()}
+            <span className="text-xs">{t("nav.other")}</span>
           </div>
         </div>
       </div>
