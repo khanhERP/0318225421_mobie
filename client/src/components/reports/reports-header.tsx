@@ -3,6 +3,8 @@ import { useTranslation } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu } from "lucide-react";
 import logoPath from "@assets/EDPOS_1753091767028.png";
+import { useQuery } from "@tanstack/react-query";
+import type { StoreSettings } from "@shared/schema";
 
 interface ReportsHeaderProps {
   onLogout?: () => void;
@@ -14,6 +16,11 @@ export function ReportsHeader({
   title = "DASHBOARD",
 }: ReportsHeaderProps) {
   const { t } = useTranslation();
+
+  // Fetch store settings
+  const { data: storeSettings } = useQuery<StoreSettings>({
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+  });
 
   const handleLogout = () => {
     // Clear authentication state from sessionStorage
@@ -39,7 +46,9 @@ export function ReportsHeader({
         {/* Left side - Dynamic title */}
         <div className="flex flex-col items-end">
           <h1 className="text-xl font-bold text-white">{title}</h1>
-          <span className="text-[0.819rem] text-white opacity-90">매장이름</span>
+          <span className="text-[0.819rem] text-white opacity-90">
+            {storeSettings?.storeName || "매장이름"}
+          </span>
         </div>
 
         {/* Center - Date info */}
