@@ -162,7 +162,7 @@ export function DashboardOverview() {
     );
 
     // Filter serving orders
-    const servingOrders = ordersData.filter(
+    const servingOrders = dateRangeOrders.filter(
       (order) =>
         order.status === "served" ||
         order.status === "preparing" ||
@@ -175,7 +175,7 @@ export function DashboardOverview() {
     );
 
     // Count active orders from all orders
-    const activeOrdersCount = ordersData.filter(
+    const activeOrdersCount = dateRangeOrders.filter(
       (order) =>
         order.status === "pending" ||
         order.status === "preparing" ||
