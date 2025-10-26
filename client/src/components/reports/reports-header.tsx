@@ -20,6 +20,13 @@ export function ReportsHeader({
   // Fetch store settings
   const { data: storeSettings } = useQuery<StoreSettings>({
     queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+    queryFn: async () => {
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+      if (!response.ok) {
+        throw new Error("Failed to fetch store settings");
+      }
+      return response.json();
+    },
   });
 
   const handleLogout = () => {
@@ -43,12 +50,11 @@ export function ReportsHeader({
   return (
     <header className="fixed top-0 left-0 right-0 bg-green-500 text-white shadow-lg z-40 h-16">
       <div className="max-w-full mx-auto px-4 h-full flex items-center justify-between">
-        {/* Left side - Dynamic title */}
+        {/* Left side - Store name */}
         <div className="flex flex-col items-end">
-          <h1 className="text-xl font-bold text-white">{title}</h1>
-          <span className="text-[0.819rem] text-white opacity-90">
+          <h1 className="text-xl font-bold text-white">
             {storeSettings?.storeName || ""}
-          </span>
+          </h1>
         </div>
 
         {/* Center - Date info */}

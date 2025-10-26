@@ -104,17 +104,44 @@ export function DashboardOverview() {
   });
 
   // Fetch orders in date range
-  const { data: dateRangeOrders, isLoading: dateRangeLoading } = useQuery({
-    queryKey: ["orders-date-range", dateRange.start, dateRange.end],
+  const { data: dateRangeOrders } = useQuery({
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range", dateRange.start, dateRange.end],
     queryFn: async () => {
-      const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch orders in date range");
+      try {
+        console.log(`Dashboard - Date Range Query:`, {
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+          apiUrl: `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
+        });
+
+        const response = await fetch(
+          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        console.log(`Dashboard - Orders received from API:`, {
+          count: data?.length || 0,
+          sampleOrder: data?.[0]
+            ? {
+                id: data[0].id,
+                orderNumber: data[0].orderNumber,
+                orderedAt: data[0].orderedAt,
+                createdAt: data[0].createdAt,
+                status: data[0].status,
+              }
+            : null,
+        });
+
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        return [];
       }
-      return response.json() as Promise<OrderData[]>;
     },
+    enabled: !!dateRange.start && !!dateRange.end,
   });
 
   // Fetch tables for table statistics
@@ -161,8 +188,25 @@ export function DashboardOverview() {
       (order) => order.status === "completed" || order.status === "paid",
     );
 
+    console.log(
+      `Dashboard - Date Range: ${dateRange.start} to ${dateRange.end}`,
+    );
+    console.log(`Dashboard - Total orders in range: ${dateRangeOrders.length}`);
+    console.log(`Dashboard - Completed orders: ${completedOrders.length}`);
+    console.log(
+      `Dashboard - Sample completed orders:`,
+      completedOrders.slice(0, 3).map((o) => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        status: o.status,
+        total: o.total,
+        orderedAt: o.orderedAt,
+        createdAt: o.createdAt,
+      })),
+    );
+
     // Filter serving orders
-    const servingOrders = dateRangeOrders.filter(
+    const servingOrders = ordersData.filter(
       (order) =>
         order.status === "served" ||
         order.status === "preparing" ||
@@ -175,7 +219,7 @@ export function DashboardOverview() {
     );
 
     // Count active orders from all orders
-    const activeOrdersCount = dateRangeOrders.filter(
+    const activeOrdersCount = ordersData.filter(
       (order) =>
         order.status === "pending" ||
         order.status === "preparing" ||
@@ -418,7 +462,7 @@ export function DashboardOverview() {
     setLocation("/sales-orders");
   };
 
-  if (ordersLoading || orderItemsLoading || dateRangeLoading) {
+  if (ordersLoading || orderItemsLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-lg text-gray-500">{t("common.loading")}...</div>

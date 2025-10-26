@@ -26,29 +26,35 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-
   // Fetch store settings để lấy PIN
-  const { data: storeData, isLoading: isLoadingSettings, error: settingsError } = useQuery({
+  const {
+    data: storeData,
+    isLoading: isLoadingSettings,
+    error: settingsError,
+  } = useQuery({
     queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
     queryFn: async () => {
       try {
         console.log("🔍 Fetching store settings from API...");
         const response = await apiRequest("GET", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
-        
+
         console.log("📡 Store settings response status:", response.status);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         // Get response text first to check if it's valid JSON
         const responseText = await response.text();
-        console.log("📄 Store settings response text:", responseText.substring(0, 200));
-        
-        if (!responseText || responseText.trim() === '') {
-          throw new Error('Empty response from server');
+        console.log(
+          "📄 Store settings response text:",
+          responseText.substring(0, 200),
+        );
+
+        if (!responseText || responseText.trim() === "") {
+          throw new Error("Empty response from server");
         }
-        
+
         const data = JSON.parse(responseText);
         console.log("✅ Store settings parsed successfully:", data);
         return data;
@@ -66,7 +72,8 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
     if (settingsError) {
       toast({
         title: "Lỗi tải cài đặt",
-        description: "Không thể tải thông tin cài đặt cửa hàng. Vui lòng thử lại.",
+        description:
+          "Không thể tải thông tin cài đặt cửa hàng. Vui lòng thử lại.",
         variant: "destructive",
       });
     }
@@ -96,7 +103,7 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
 
     try {
       console.log("🔐 Verifying PIN via API...");
-      
+
       // Call API to verify PIN
       const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/auth/verify-pin", {
         method: "POST",
@@ -262,7 +269,7 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
                 variant="outline"
                 className="h-12 text-lg font-semibold"
                 onClick={() => {
-                  if (pin.length < 6) {
+                  if (pin.length <= 6) {
                     setPin((prev) => prev + num);
                   }
                 }}

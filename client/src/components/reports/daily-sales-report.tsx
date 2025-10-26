@@ -15,6 +15,7 @@ import { useTranslation } from "@/lib/i18n";
 import { format, subDays, startOfMonth, endOfMonth } from "date-fns";
 import { vi } from "date-fns/locale";
 import logoPath from "@assets/EDPOS_1753091767028.png";
+import type { StoreSettings } from "@shared/schema";
 
 interface OrderData {
   id: number;
@@ -55,6 +56,18 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [activeFilter, setActiveFilter] = useState("thisMonth"); // Track active filter button
+
+  // Fetch store settings
+  const { data: storeSettings } = useQuery<StoreSettings>({
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+    queryFn: async () => {
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+      if (!response.ok) {
+        throw new Error("Failed to fetch store settings");
+      }
+      return response.json();
+    },
+  });
 
   // Fetch orders for the date range
   const { data: orders = [], isLoading } = useQuery({
@@ -217,13 +230,13 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
               <div className="text-center mb-4">
                 <div className="border border-gray-300 p-2 mb-4">
                   <div className="text-sm">
-                    {t("common.restaurant")}: Phở Đẹp Trai Khanh
+                    {t("common.restaurant")}: {storeSettings?.storeName || ""}
                   </div>
                   <div className="text-sm">
-                    {t("common.address")}: 서울시 강남구 테헤란로 123
+                    {t("common.address")}: {storeSettings.address || ""}
                   </div>
                   <div className="text-sm">
-                    {t("common.phone")}: 02-1234-5678
+                    {t("common.phone")}: {storeSettings.phone || ""}
                   </div>
                 </div>
                 <h2 className="text-lg font-bold">
@@ -274,16 +287,17 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                   selectedOrderItems.map((item: any, index: number) => {
                     // Calculate display price based on priceIncludeTax
                     let displayPrice = parseFloat(item.unitPrice || "0");
-                    const priceIncludeTax = selectedOrder.priceIncludeTax === true;
+                    const priceIncludeTax =
+                      selectedOrder.priceIncludeTax === true;
                     const itemTax = parseFloat(item.tax || "0");
                     const quantity = parseInt(item.quantity || "1");
-                    
+
                     if (priceIncludeTax && itemTax > 0) {
                       // If price includes tax: unitPrice = price with tax, need to show price without tax
                       const taxPerUnit = itemTax / quantity;
                       displayPrice = displayPrice - taxPerUnit;
                     }
-                    
+
                     return (
                       <div key={index} className="flex justify-between">
                         <div>
@@ -299,7 +313,9 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                         </div>
                         <div className="text-right">
                           <div className="font-semibold">
-                            {formatCurrency(displayPrice * parseInt(item.quantity || "1"))}
+                            {formatCurrency(
+                              displayPrice * parseInt(item.quantity || "1"),
+                            )}
                           </div>
                           {parseFloat(item.discount || "0") > 0 && (
                             <div className="text-xs text-red-500">
@@ -327,8 +343,8 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                       selectedOrderItems.reduce((sum: number, item: any) => {
                         const displayPrice = parseFloat(item.unitPrice || "0");
                         const quantity = parseInt(item.quantity || "1");
-                        return sum + (displayPrice * quantity);
-                      }, 0)
+                        return sum + displayPrice * quantity;
+                      }, 0),
                     )}
                   </span>
                 </div>

@@ -19,7 +19,7 @@ export function ReportsMenu({
   onDailySalesClick,
 }: ReportsMenuProps) {
   const { t } = useTranslation();
-  
+
   const reportItems = [
     {
       href: "#",
