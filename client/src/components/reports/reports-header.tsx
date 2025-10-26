@@ -49,21 +49,16 @@ export function ReportsHeader({
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-green-500 text-white shadow-lg z-40 h-16">
-      <div className="max-w-full mx-auto px-4 h-full flex items-center justify-between">
-        {/* Left side - Store name */}
-        <div className="flex flex-col items-start max-w-[40%]">
-          <h1 className="text-base sm:text-lg md:text-xl font-bold text-white truncate w-full">
+      <div className="max-w-full mx-auto px-4 h-full flex items-center justify-between gap-2">
+        {/* Left side - Store name only */}
+        <div className="flex items-center flex-1 min-w-0">
+          <h1 className="text-base sm:text-lg md:text-xl font-bold text-white truncate whitespace-nowrap">
             {storeSettings?.storeName || ""}
           </h1>
         </div>
 
-        {/* Center - Date info */}
-        <div className="flex items-center text-sm">
-          <span>{t("reports.toDay")}</span>
-        </div>
-
         {/* Right side - Logo */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0">
           <img
             src={logoPath}
             alt="EDPOS Logo"
