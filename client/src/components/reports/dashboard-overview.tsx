@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Calendar,
   DollarSign,
@@ -14,11 +15,13 @@ import {
   ArrowUpRight,
   MoreHorizontal,
   Eye,
+  ChevronRight,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { format, subDays } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useLocation } from "wouter";
+import type { StoreSettings } from "@shared/schema";
 
 interface OrderData {
   id: number;
@@ -73,10 +76,47 @@ interface DashboardStats {
 export function DashboardOverview() {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
-  const [dateRange, setDateRange] = useState(() => {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  
+  // Initialize with saved date range from localStorage or today's date
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
+    try {
+      const savedDateRange = localStorage.getItem('dashboard-date-range');
+      if (savedDateRange) {
+        const parsed = JSON.parse(savedDateRange);
+        // Validate the saved dates
+        if (parsed.start && parsed.end) {
+          return { start: parsed.start, end: parsed.end };
+        }
+      }
+    } catch (error) {
+      console.error('Error loading saved date range:', error);
+    }
+    // Fallback to today's date
     const today = new Date();
     const formattedToday = format(today, "yyyy-MM-dd");
     return { start: formattedToday, end: formattedToday };
+  });
+
+  // Save date range to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('dashboard-date-range', JSON.stringify(dateRange));
+    } catch (error) {
+      console.error('Error saving date range:', error);
+    }
+  }, [dateRange]);
+
+  // Fetch store settings
+  const { data: storeSettings } = useQuery<StoreSettings>({
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+    queryFn: async () => {
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+      if (!response.ok) {
+        throw new Error("Failed to fetch store settings");
+      }
+      return response.json();
+    },
   });
 
   // Fetch orders
@@ -141,7 +181,8 @@ export function DashboardOverview() {
         return [];
       }
     },
-    enabled: !!dateRange.start && !!dateRange.end,
+    enabled: Boolean(dateRange.start && dateRange.end),
+    staleTime: 30000, // Cache for 30 seconds to reduce re-fetching
   });
 
   // Fetch tables for table statistics
@@ -458,8 +499,8 @@ export function DashboardOverview() {
   };
 
   const handleOrderDetailsClick = () => {
-    // Navigate to sales orders page to show order management
-    setLocation("/sales-orders");
+    // Navigate to sales orders page with date range parameters
+    setLocation(`/sales-orders?startDate=${dateRange.start}&endDate=${dateRange.end}`);
   };
 
   if (ordersLoading || orderItemsLoading) {
@@ -472,6 +513,144 @@ export function DashboardOverview() {
 
   return (
     <div className="space-y-4 pb-20">
+      {/* Date Filter Section */}
+      <div className="bg-gray-200 p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-gray-600" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm text-gray-700 hover:bg-gray-300 px-2 py-1"
+              onClick={() => setShowDatePicker(!showDatePicker)}
+            >
+              {(() => {
+                const today = new Date();
+                const todayStr = format(today, "yyyy-MM-dd");
+                const isToday = dateRange.start === todayStr && dateRange.end === todayStr;
+                
+                if (isToday) {
+                  return t("reports.today");
+                }
+                
+                // Check if it's last week
+                const weekStart = subDays(today, 7);
+                const lastWeekStart = format(weekStart, "yyyy-MM-dd");
+                const lastWeekEnd = format(today, "yyyy-MM-dd");
+                const isLastWeek = dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd;
+                
+                if (isLastWeek) {
+                  return t("reports.lastWeekText");
+                }
+                
+                // Check if it's this month
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                const thisMonthStart = format(monthStart, "yyyy-MM-dd");
+                const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
+                const isThisMonth = dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd;
+                
+                if (isThisMonth) {
+                  return t("reports.thisMonthText");
+                }
+                
+                return `${format(new Date(dateRange.start), "dd/MM/yyyy", { locale: vi })} - ${format(new Date(dateRange.end), "dd/MM/yyyy", { locale: vi })}`;
+              })()}
+              <ChevronRight
+                className={`w-4 h-4 ml-1 transition-transform ${showDatePicker ? "rotate-90" : ""}`}
+              />
+            </Button>
+          </div>
+        </div>
+
+        {/* Date Range Picker */}
+        {showDatePicker && (
+          <div className="mt-3 p-3 bg-white rounded-lg shadow-sm border">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">
+                  {t("reports.startDate")}
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({ ...prev, start: e.target.value }))
+                  }
+                  className="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-600 block mb-1">
+                  {t("reports.endDate")}
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) =>
+                    setDateRange((prev) => ({ ...prev, end: e.target.value }))
+                  }
+                  className="w-full text-sm border border-gray-300 rounded px-2 py-1"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3 flex-wrap">
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const formattedToday = format(today, "yyyy-MM-dd");
+                  setDateRange({ start: formattedToday, end: formattedToday });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.toDay")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const weekStart = subDays(today, 7);
+                  setDateRange({
+                    start: format(weekStart, "yyyy-MM-dd"),
+                    end: format(today, "yyyy-MM-dd"),
+                  });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.lastWeek")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const start = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    1,
+                  );
+                  const end = new Date(
+                    today.getFullYear(),
+                    today.getMonth() + 1,
+                    0,
+                  );
+                  setDateRange({
+                    start: format(start, "yyyy-MM-dd"),
+                    end: format(end, "yyyy-MM-dd"),
+                  });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.thisMonth")}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Revenue Cards */}
       <div className="grid grid-cols-1 gap-3 px-4">
         {/* Main Revenue Card */}
@@ -535,7 +714,9 @@ export function DashboardOverview() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600 text-sm">
-                  {t("reports.serving")}
+                  {storeSettings?.businessType === "laundry"
+                    ? t("reports.orderRevenue")
+                    : t("reports.serving")}
                 </span>
                 <span className="font-semibold">
                   {formatCurrency(dashboardStats.servingRevenue)}
@@ -555,22 +736,24 @@ export function DashboardOverview() {
       </div>
 
       {/* Tables and Orders Stats */}
-      <div className="grid grid-cols-2 gap-3 px-4">
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-4">
-            <div className="text-center space-y-2">
-              <div className="text-sm text-gray-600">
-                {t("reports.tablesInUse")}
+      <div className={`grid ${storeSettings?.businessType === "laundry" ? "grid-cols-1" : "grid-cols-2"} gap-3 px-4`}>
+        {storeSettings?.businessType !== "laundry" && (
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-4">
+              <div className="text-center space-y-2">
+                <div className="text-sm text-gray-600">
+                  {t("reports.tablesInUse")}
+                </div>
+                <div className="text-2xl font-bold text-green-600">
+                  {getOccupiedTablesCount()}/{getTotalTablesCount()}
+                </div>
+                <div className="w-12 h-8 bg-gray-200 rounded mx-auto flex items-center justify-center">
+                  <div className="w-8 h-6 bg-gray-400 rounded"></div>
+                </div>
               </div>
-              <div className="text-2xl font-bold text-green-600">
-                {getOccupiedTablesCount()}/{getTotalTablesCount()}
-              </div>
-              <div className="w-12 h-8 bg-gray-200 rounded mx-auto flex items-center justify-center">
-                <div className="w-8 h-6 bg-gray-400 rounded"></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-0 shadow-md">
           <CardContent className="p-4">
@@ -587,7 +770,11 @@ export function DashboardOverview() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t("reports.processing")}</span>
+                  <span>
+                    {storeSettings?.businessType === "laundry"
+                      ? t("reports.orderRevenue")
+                      : t("reports.processing")}
+                  </span>
                   <span className="font-semibold">
                     {dashboardStats.processingOrdersCount}
                   </span>

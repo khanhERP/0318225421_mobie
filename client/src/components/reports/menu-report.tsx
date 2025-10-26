@@ -275,7 +275,38 @@ export function MenuReport({
               className="text-sm text-gray-700 hover:bg-gray-300 px-2 py-1"
               onClick={() => setShowDatePicker(!showDatePicker)}
             >
-              {formatDate(dateRange.start)} - {formatDate(dateRange.end)}
+              {(() => {
+                const today = new Date();
+                const todayStr = format(today, "yyyy-MM-dd");
+                const isToday = dateRange.start === todayStr && dateRange.end === todayStr;
+                
+                if (isToday) {
+                  return t("reports.today");
+                }
+                
+                // Check if it's last week
+                const weekStart = subDays(today, 7);
+                const lastWeekStart = format(weekStart, "yyyy-MM-dd");
+                const lastWeekEnd = format(today, "yyyy-MM-dd");
+                const isLastWeek = dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd;
+                
+                if (isLastWeek) {
+                  return t("reports.lastWeek");
+                }
+                
+                // Check if it's this month
+                const monthStart = startOfMonth(today);
+                const monthEnd = endOfMonth(today);
+                const thisMonthStart = format(monthStart, "yyyy-MM-dd");
+                const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
+                const isThisMonth = dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd;
+                
+                if (isThisMonth) {
+                  return t("reports.thisMonth");
+                }
+                
+                return `${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`;
+              })()}
               <ChevronRight
                 className={`w-4 h-4 ml-1 transition-transform ${showDatePicker ? "rotate-90" : ""}`}
               />
@@ -336,10 +367,42 @@ export function MenuReport({
               </Button>
               <Button
                 size="sm"
-                onClick={handleRefresh}
-                className="text-xs px-3 py-1 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => {
+                  const today = new Date();
+                  const weekStart = subDays(today, 7);
+                  setDateRange({
+                    start: format(weekStart, "yyyy-MM-dd"),
+                    end: format(today, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("lastWeek");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "lastWeek"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
               >
-                {t("reports.refresh")}
+                {t("reports.lastWeek")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const monthStart = startOfMonth(today);
+                  const monthEnd = endOfMonth(today);
+                  setDateRange({
+                    start: format(monthStart, "yyyy-MM-dd"),
+                    end: format(monthEnd, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("thisMonth");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "thisMonth"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.thisMonth")}
               </Button>
             </div>
           </div>

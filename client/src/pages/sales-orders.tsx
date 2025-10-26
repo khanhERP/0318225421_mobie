@@ -77,21 +77,31 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const [, setLocation] = useLocation();
   const search = useSearch();
 
+  // Get date range from URL parameters
+  const urlParams = new URLSearchParams(search);
+  const urlStartDate = urlParams.get("startDate");
+  const urlEndDate = urlParams.get("endDate");
+
   // State for filtering and search
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [salesChannelFilter, setSalesChannelFilter] = useState("all");
-  const [dateRange, setDateRange] = useState("today");
+  const [dateRange, setDateRange] = useState(
+    urlStartDate && urlEndDate ? "custom" : "today"
+  );
   const [startDate, setStartDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
+    urlStartDate || new Date().toISOString().split("T")[0],
   );
   const [endDate, setEndDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
+    urlEndDate || new Date().toISOString().split("T")[0],
   );
 
   // State for selected order details
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderDialog, setShowOrderDialog] = useState(false);
+  
+  // State for active tab
+  const [activeTab, setActiveTab] = useState<string>("tables");
 
   // Fetch orders
   const {
@@ -144,6 +154,25 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       return response.json();
     },
   });
+
+  // Fetch store settings to check business type
+  const { data: storeSettings } = useQuery({
+    queryKey: ["store-settings"],
+    queryFn: async () => {
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+      if (!response.ok) {
+        throw new Error("Failed to fetch store settings");
+      }
+      return response.json();
+    },
+  });
+  
+  // Set active tab based on business type when store settings load
+  useEffect(() => {
+    if (storeSettings?.businessType === "laundry") {
+      setActiveTab("takeaway");
+    }
+  }, [storeSettings]);
 
   // Helper functions - defined at the top to avoid hoisting issues
   const getPaymentMethodName = (method: string) => {
@@ -355,10 +384,14 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
 
       <div className="p-4 space-y-4">
         {/* Tabs for Tables and Takeaway */}
-        <Tabs defaultValue="tables" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tables">{t("reports.dineIn")}</TabsTrigger>
-            <TabsTrigger value="takeaway">{t("reports.takeaway")}</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className={`grid w-full ${storeSettings?.businessType === "laundry" ? "grid-cols-1" : "grid-cols-2"}`}>
+            {storeSettings?.businessType !== "laundry" && (
+              <TabsTrigger value="tables">{t("reports.dineIn")}</TabsTrigger>
+            )}
+            <TabsTrigger value="takeaway">
+              {storeSettings?.businessType === "laundry" ? t("reports.details") : t("reports.takeaway")}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tables" className="space-y-4">
@@ -514,12 +547,14 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <div>
-                            <span className="text-xs text-gray-500">
-                              {t("reports.takeaway")}
-                            </span>
-                          </div>
-                          <div className="text-right">
+                          {storeSettings?.businessType !== "laundry" && (
+                            <div>
+                              <span className="text-xs text-gray-500">
+                                {t("reports.takeaway")}
+                              </span>
+                            </div>
+                          )}
+                          <div className={`text-right ${storeSettings?.businessType === "laundry" ? "w-full" : ""}`}>
                             <span className="text-xs text-gray-500 block">
                               {t("orders.totalAmount")}
                             </span>

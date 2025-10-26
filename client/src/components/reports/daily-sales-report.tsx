@@ -229,7 +229,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
             <CardContent className="p-6">
               <div className="text-center mb-4">
                 <div className="border border-gray-300 p-2 mb-4">
-                  <div className="text-sm text-bold">
+                  <div className="text-sm">
                     {storeSettings?.storeName || ""}
                   </div>
                   <div className="text-sm">
