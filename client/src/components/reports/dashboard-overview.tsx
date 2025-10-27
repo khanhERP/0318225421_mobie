@@ -722,7 +722,7 @@ export function DashboardOverview() {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span>
+                <span className="text-gray-600 text-sm">
                   {storeSettings?.businessType === "laundry"
                     ? t("reports.unpaid")
                     : t("reports.processing")}
@@ -781,7 +781,7 @@ export function DashboardOverview() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>
+                  <span className="text-gray-600 text-sm">
                     {storeSettings?.businessType === "laundry"
                       ? t("reports.unpaid")
                       : t("reports.processing")}
@@ -802,8 +802,8 @@ export function DashboardOverview() {
         </Card>
       </div>
 
-      {/* Customer Stats */}
-      <div className="px-4">
+      {/* Customer Stats - Hidden */}
+      {/* <div className="px-4">
         <Card className="border-0 shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -863,7 +863,7 @@ export function DashboardOverview() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Orders Section */}
       <div className="px-4">

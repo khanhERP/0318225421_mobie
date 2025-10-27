@@ -87,7 +87,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [salesChannelFilter, setSalesChannelFilter] = useState("all");
   const [dateRange, setDateRange] = useState(
-    urlStartDate && urlEndDate ? "custom" : "today"
+    urlStartDate && urlEndDate ? "custom" : "today",
   );
   const [startDate, setStartDate] = useState<string>(
     urlStartDate || new Date().toISOString().split("T")[0],
@@ -99,7 +99,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   // State for selected order details
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderDialog, setShowOrderDialog] = useState(false);
-  
+
   // State for active tab
   const [activeTab, setActiveTab] = useState<string>("tables");
 
@@ -166,7 +166,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       return response.json();
     },
   });
-  
+
   // Set active tab based on business type when store settings load
   useEffect(() => {
     if (storeSettings?.businessType === "laundry") {
@@ -385,19 +385,48 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       <div className="p-4 space-y-4">
         {/* Tabs for Tables and Takeaway */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full ${storeSettings?.businessType === "laundry" ? "grid-cols-1" : "grid-cols-2"}`}>
+          <TabsList
+            className={`grid w-full ${storeSettings?.businessType === "laundry" ? "grid-cols-1" : "grid-cols-2"}`}
+          >
             {storeSettings?.businessType !== "laundry" && (
               <TabsTrigger value="tables">{t("reports.dineIn")}</TabsTrigger>
             )}
             <TabsTrigger value="takeaway">
-              {storeSettings?.businessType === "laundry" ? t("reports.details") : t("reports.takeaway")}
+              {storeSettings?.businessType === "laundry"
+                ? t("reports.details")
+                : t("reports.takeaway")}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tables" className="space-y-4">
-            {/* Search and Filters - Not implemented in this version */}
-            {/* This section is intentionally left blank as per the updated focus */}
-            {/* If you need search and filters, they would be added here */}
+            {/* Status Filter */}
+            <Card>
+              <CardContent className="p-4">
+                <Label className="text-sm font-medium mb-2 block">
+                  {t("orders.orderStatus")}
+                </Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("orders.orderStatus")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("common.all")}</SelectItem>
+                    <SelectItem value="pending">
+                      {t("orders.status.pending")}
+                    </SelectItem>
+                    <SelectItem value="paid">
+                      {t("orders.status.paid")}
+                    </SelectItem>
+                    <SelectItem value="completed">
+                      {t("orders.status.completed")}
+                    </SelectItem>
+                    <SelectItem value="cancelled">
+                      {t("orders.status.cancelled")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
 
             {/* Table Orders List */}
             <div className="space-y-3">
@@ -512,8 +541,31 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
           </TabsContent>
 
           <TabsContent value="takeaway" className="space-y-4">
-            {/* Search and Filters - Not implemented in this version */}
-            {/* This section is intentionally left blank as per the updated focus */}
+            {/* Status Filter */}
+            <Card>
+              <CardContent className="p-4">
+                <Label className="text-sm font-medium mb-2 block">
+                  {t("orders.orderStatus")}
+                </Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("orders.orderStatus")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("common.all")}</SelectItem>
+                    <SelectItem value="pending">
+                      {t("orders.status.pending")}
+                    </SelectItem>
+                    <SelectItem value="paid">
+                      {t("orders.status.paid")}
+                    </SelectItem>
+                    <SelectItem value="cancelled">
+                      {t("orders.status.cancelled")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
 
             {/* Takeaway Orders List */}
             <div className="space-y-3">
@@ -554,7 +606,9 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
                               </span>
                             </div>
                           )}
-                          <div className={`text-right ${storeSettings?.businessType === "laundry" ? "w-full" : ""}`}>
+                          <div
+                            className={`text-right ${storeSettings?.businessType === "laundry" ? "w-full" : ""}`}
+                          >
                             <span className="text-xs text-gray-500 block">
                               {t("orders.totalAmount")}
                             </span>

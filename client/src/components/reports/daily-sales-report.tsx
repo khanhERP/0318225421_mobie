@@ -56,6 +56,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [activeFilter, setActiveFilter] = useState("thisMonth"); // Track active filter button
+  const [orderSearchTerm, setOrderSearchTerm] = useState(""); // Search by order number
 
   // Fetch store settings
   const { data: storeSettings } = useQuery<StoreSettings>({
@@ -386,6 +387,11 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
       (data) => data.date === selectedDate,
     );
 
+    // Filter orders by search term
+    const filteredOrders = selectedDateData?.orders.filter((order) =>
+      order.orderNumber.toLowerCase().includes(orderSearchTerm.toLowerCase())
+    ) || [];
+
     return (
       <div className="min-h-screen bg-green-50">
         {/* Header */}
@@ -416,9 +422,23 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="p-4 pb-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={t("reports.searchOrderNumber") || "Tìm kiếm theo mã đơn hàng..."}
+              value={orderSearchTerm}
+              onChange={(e) => setOrderSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+        </div>
+
         {/* Orders List */}
-        <div className="p-4 space-y-3">
-          {selectedDateData?.orders.map((order) => (
+        <div className="p-4 pt-2 space-y-3">
+          {filteredOrders.map((order) => (
             <Card
               key={order.id}
               className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -440,13 +460,23 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
             </Card>
           ))}
 
+          {filteredOrders.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              {orderSearchTerm ? t("reports.noOrdersFound") || "Không tìm thấy đơn hàng" : t("reports.noOrders")}
+            </div>
+          )}
+
           {/* Total */}
           <Card className="border-0 shadow-sm bg-green-50">
             <CardContent className="p-4">
               <div className="flex justify-between items-center">
-                <span className="font-semibold">{t("reports.total")}</span>
+                <span className="font-semibold">
+                  {t("reports.total")} ({filteredOrders.length}/{selectedDateData?.orders.length || 0})
+                </span>
                 <span className="font-semibold text-green-600">
-                  {formatCurrency(selectedDateData?.revenue || 0)}
+                  {formatCurrency(
+                    filteredOrders.reduce((sum, order) => sum + parseFloat(order.total), 0)
+                  )}
                 </span>
               </div>
             </CardContent>

@@ -391,6 +391,9 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     salesRevenue: "Doanh thu bán hàng",
     revenueAmount: "Số tiền doanh thu",
     revenueTotal: "Doanh thu",
+    searchOrderNumber: "Tìm kiếm theo mã đơn hàng...",
+    noOrdersFound: "Không tìm thấy đơn hàng",
+    noOrders: "Không có đơn hàng",
 
     // Chart specific
     value: "Giá trị",
@@ -970,6 +973,9 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     salesRevenue: "매출액",
     revenueAmount: "수익 금액",
     revenueTotal: "매출",
+    searchOrderNumber: "주문 번호로 검색...",
+    noOrdersFound: "주문이 없습니다",
+    noOrders: "주문이 없습니다",
 
     // Chart specific
     value: "값",
