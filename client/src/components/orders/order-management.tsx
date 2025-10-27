@@ -1912,7 +1912,7 @@ export function OrderManagement() {
       try {
         const wsProtocol =
           window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+        const wsUrl = `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/ws`;
 
         console.log(
           "🔗 Order Management: Attempting WebSocket connection to:",

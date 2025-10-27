@@ -62,6 +62,7 @@ interface DashboardStats {
   completedOrdersCount: number;
   processingOrdersCount: number;
   cancelledOrdersCount: number;
+  unpaidOrdersCount: number; // Added for unpaid orders count
   totalOrdersInRange: number;
   dateRange: string;
   paymentMethods: { [key: string]: { count: number; total: number } };
@@ -77,7 +78,7 @@ export function DashboardOverview() {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
+
   // Initialize with saved date range from localStorage or today's date
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
     try {
@@ -211,6 +212,7 @@ export function DashboardOverview() {
       completedOrdersCount: 0,
       processingOrdersCount: 0,
       cancelledOrdersCount: 0,
+      unpaidOrdersCount: 0, // Initialize unpaidOrdersCount
       totalOrdersInRange: 0,
       dateRange: `${dateRange.start} to ${dateRange.end}`,
       paymentMethods: {},
@@ -229,11 +231,17 @@ export function DashboardOverview() {
       (order) => order.status === "completed" || order.status === "paid",
     );
 
+    // Filter unpaid orders from date range (only within selected date range)
+    const unpaidOrders = dateRangeOrders.filter(
+      (order) => order.status === "pending" || order.status === "unpaid" || order.status === "served" || order.status === "preparing",
+    );
+
     console.log(
       `Dashboard - Date Range: ${dateRange.start} to ${dateRange.end}`,
     );
     console.log(`Dashboard - Total orders in range: ${dateRangeOrders.length}`);
     console.log(`Dashboard - Completed orders: ${completedOrders.length}`);
+    console.log(`Dashboard - Unpaid orders: ${unpaidOrders.length}`);
     console.log(
       `Dashboard - Sample completed orders:`,
       completedOrders.slice(0, 3).map((o) => ({
@@ -246,8 +254,8 @@ export function DashboardOverview() {
       })),
     );
 
-    // Filter serving orders
-    const servingOrders = ordersData.filter(
+    // Filter serving orders from date range only
+    const servingOrders = dateRangeOrders.filter(
       (order) =>
         order.status === "served" ||
         order.status === "preparing" ||
@@ -259,8 +267,8 @@ export function DashboardOverview() {
       (order) => order.status === "cancelled",
     );
 
-    // Count active orders from all orders
-    const activeOrdersCount = ordersData.filter(
+    // Count active orders from date range only
+    const activeOrdersCount = dateRangeOrders.filter(
       (order) =>
         order.status === "pending" ||
         order.status === "preparing" ||
@@ -464,6 +472,7 @@ export function DashboardOverview() {
     stats.completedOrdersCount = completedOrders.length;
     stats.processingOrdersCount = servingOrders.length;
     stats.cancelledOrdersCount = cancelledOrders.length;
+    stats.unpaidOrdersCount = unpaidOrders.length; // Set unpaid orders count
     stats.totalOrdersInRange = dateRangeOrders.length;
     stats.paymentMethods = paymentMethods;
     stats.topProducts = topProducts;
@@ -528,32 +537,32 @@ export function DashboardOverview() {
                 const today = new Date();
                 const todayStr = format(today, "yyyy-MM-dd");
                 const isToday = dateRange.start === todayStr && dateRange.end === todayStr;
-                
+
                 if (isToday) {
                   return t("reports.today");
                 }
-                
+
                 // Check if it's last week
                 const weekStart = subDays(today, 7);
                 const lastWeekStart = format(weekStart, "yyyy-MM-dd");
                 const lastWeekEnd = format(today, "yyyy-MM-dd");
                 const isLastWeek = dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd;
-                
+
                 if (isLastWeek) {
                   return t("reports.lastWeekText");
                 }
-                
+
                 // Check if it's this month
                 const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
                 const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                 const thisMonthStart = format(monthStart, "yyyy-MM-dd");
                 const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
                 const isThisMonth = dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd;
-                
+
                 if (isThisMonth) {
                   return t("reports.thisMonthText");
                 }
-                
+
                 return `${format(new Date(dateRange.start), "dd/MM/yyyy", { locale: vi })} - ${format(new Date(dateRange.end), "dd/MM/yyyy", { locale: vi })}`;
               })()}
               <ChevronRight
@@ -713,13 +722,15 @@ export function DashboardOverview() {
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">
+                <span>
                   {storeSettings?.businessType === "laundry"
-                    ? t("reports.orderRevenue")
-                    : t("reports.serving")}
+                    ? t("reports.unpaid")
+                    : t("reports.processing")}
                 </span>
                 <span className="font-semibold">
-                  {formatCurrency(dashboardStats.servingRevenue)}
+                  {storeSettings?.businessType === "laundry"
+                    ? formatCurrency(dashboardStats.servingRevenue)
+                    : dashboardStats.processingOrdersCount}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -772,7 +783,7 @@ export function DashboardOverview() {
                 <div className="flex justify-between">
                   <span>
                     {storeSettings?.businessType === "laundry"
-                      ? t("reports.orderRevenue")
+                      ? t("reports.unpaid")
                       : t("reports.processing")}
                   </span>
                   <span className="font-semibold">
