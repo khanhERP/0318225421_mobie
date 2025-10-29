@@ -398,10 +398,13 @@ export function MenuReport({
                 size="sm"
                 onClick={() => {
                   const today = new Date();
-                  const weekStart = subDays(today, 7);
+                  const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                  const daysToLastMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek + 6; // If Sunday, go back 6 days to last Monday; otherwise go back to last Monday
+                  const lastMonday = subDays(today, daysToLastMonday);
+                  const lastSunday = subDays(today, currentDayOfWeek === 0 ? 0 : currentDayOfWeek);
                   setDateRange({
-                    start: format(weekStart, "yyyy-MM-dd"),
-                    end: format(today, "yyyy-MM-dd"),
+                    start: format(lastMonday, "yyyy-MM-dd"),
+                    end: format(lastSunday, "yyyy-MM-dd"),
                   });
                   setActiveFilter("lastWeek");
                 }}

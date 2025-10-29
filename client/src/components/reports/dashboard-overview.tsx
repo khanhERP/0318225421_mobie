@@ -559,10 +559,13 @@ export function DashboardOverview() {
                   return t("reports.dayBeforeYesterday");
                 }
 
-                // Check if it's last week (7 days ago to today)
-                const weekStart = subDays(today, 7);
-                const lastWeekStart = format(weekStart, "yyyy-MM-dd");
-                const lastWeekEnd = format(today, "yyyy-MM-dd");
+                // Check if it's last week (last Monday to last Sunday)
+                const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                const daysToLastMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek + 6;
+                const lastMonday = subDays(today, daysToLastMonday);
+                const lastSunday = subDays(today, currentDayOfWeek === 0 ? 0 : currentDayOfWeek);
+                const lastWeekStart = format(lastMonday, "yyyy-MM-dd");
+                const lastWeekEnd = format(lastSunday, "yyyy-MM-dd");
                 const isLastWeek = dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd;
                 if (isLastWeek) {
                   return t("reports.lastWeek");
@@ -679,10 +682,13 @@ export function DashboardOverview() {
                 size="sm"
                 onClick={() => {
                   const today = new Date();
-                  const weekStart = subDays(today, 7);
+                  const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                  const daysToLastMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek + 6; // If Sunday, go back 6 days; otherwise go back to last Monday
+                  const lastMonday = subDays(today, daysToLastMonday);
+                  const lastSunday = subDays(today, currentDayOfWeek === 0 ? 0 : currentDayOfWeek);
                   setDateRange({
-                    start: format(weekStart, "yyyy-MM-dd"),
-                    end: format(today, "yyyy-MM-dd"),
+                    start: format(lastMonday, "yyyy-MM-dd"),
+                    end: format(lastSunday, "yyyy-MM-dd"),
                   });
                   setShowDatePicker(false);
                 }}

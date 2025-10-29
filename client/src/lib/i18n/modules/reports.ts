@@ -3,13 +3,16 @@ import { type ReportsTranslations } from "../types";
 export const reportsTranslations: { [key: string]: ReportsTranslations } = {
   vi: {
     title: "Báo cáo",
+    details: "Chi tiết",
     description: "Xem báo cáo bán hàng và vận hành",
     dashboard: "Bảng điều khiển",
+    noData: "Không có dữ liệu",
     dashboardDescription: "Tổng quan về doanh số và trạng thái hoạt động",
     salesAnalysis: "Phân tích bán hàng",
     menuAnalysis: "Phân tích menu",
     tableAnalysis: "Phân tích bàn",
     backToTables: "Quay lại Bàn",
+    menuAnalysisDescription: "Phân tích chi tiết về hiệu suất menu và sản phẩm",
 
     // Date and time filters
     startDate: "Từ ngày",
@@ -429,6 +432,9 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     title: "보고서",
     description: "판매 및 운영 보고서 보기",
     dashboard: "대시보드",
+    noData: "데이터 없음",
+    details: "자세히 보기",
+    menuAnalysisDescription: "메뉴 및 상품 성과에 대한 상세 분석",
     dashboardDescription: "총 매출 및 운영 상태 대시보드",
     salesAnalysis: "매출 분석",
     orderCount: "주문 수",
@@ -994,6 +1000,10 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     title: "Reports",
     description: "View sales and operational reports",
     dashboard: "Dashboard",
+    details: "Details",
+    noData: "No Data",
+    menuAnalysisDescription:
+      "Detailed analysis of menu and product performance",
     dashboardDescription: "Dashboard of total sales and operational status",
     salesAnalysis: "Sales Analysis",
     menuAnalysis: "Menu Analysis",

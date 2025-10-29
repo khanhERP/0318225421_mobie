@@ -549,6 +549,17 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                   return t("reports.dayBeforeYesterday");
                 }
                 
+                // Check if it's last week
+                const currentDay = today.getDay();
+                const daysToLastMonday = currentDay === 0 ? 6 : currentDay - 1;
+                const lastMonday = subDays(today, daysToLastMonday + 7);
+                const lastSunday = subDays(today, daysToLastMonday + 1);
+                const lastWeekStart = format(lastMonday, "yyyy-MM-dd");
+                const lastWeekEnd = format(lastSunday, "yyyy-MM-dd");
+                if (activeFilter === "lastWeek" || (dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd)) {
+                  return t("reports.lastWeek");
+                }
+                
                 // Check if it's last month
                 const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
                 const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
@@ -685,6 +696,28 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 }`}
               >
                 {t("reports.dayBeforeYesterday")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const currentDay = today.getDay();
+                  const daysToLastMonday = currentDay === 0 ? 6 : currentDay - 1;
+                  const lastMonday = subDays(today, daysToLastMonday + 7);
+                  const lastSunday = subDays(today, daysToLastMonday + 1);
+                  setDateRange({
+                    start: format(lastMonday, "yyyy-MM-dd"),
+                    end: format(lastSunday, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("lastWeek");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "lastWeek"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.lastWeek")}
               </Button>
               <Button
                 size="sm"

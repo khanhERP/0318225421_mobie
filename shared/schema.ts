@@ -8,6 +8,7 @@ import {
   boolean,
   varchar,
   date,
+  numeric, // Import numeric
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations, sql } from "drizzle-orm";
@@ -36,9 +37,13 @@ export const products = pgTable("products", {
   taxRate: decimal("tax_rate", { precision: 5, scale: 2 })
     .notNull()
     .default("0.00"),
+  taxRateName: text("tax_rate_name"), // Stores display name like "KCT", "KKKNT", "0%", "8%"
   priceIncludesTax: boolean("price_includes_tax").notNull().default(false),
   afterTaxPrice: decimal("after_tax_price", { precision: 10, scale: 2 }),
   beforeTaxPrice: decimal("before_tax_price", { precision: 18, scale: 2 }),
+  floor: varchar("floor", { length: 50 }).default("1"),
+  zone: varchar("zone", { length: 50 }).default("A"),
+  unit: text("unit").default("Cái"),
 });
 
 export const transactions = pgTable("transactions", {
@@ -54,7 +59,9 @@ export const transactions = pgTable("transactions", {
   notes: text("notes"),
   invoiceId: integer("invoice_id").references(() => invoices.id),
   invoiceNumber: varchar("invoice_number", { length: 50 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const transactionItems = pgTable("transaction_items", {
@@ -79,8 +86,12 @@ export const employees = pgTable("employees", {
   phone: text("phone"),
   role: text("role").notNull(), // "manager", "cashier", "admin"
   isActive: boolean("is_active").notNull().default(true),
-  hireDate: timestamp("hire_date").defaultNow().notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  hireDate: timestamp("hire_date", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const attendanceRecords = pgTable("attendance_records", {
@@ -88,15 +99,17 @@ export const attendanceRecords = pgTable("attendance_records", {
   employeeId: integer("employee_id")
     .references(() => employees.id)
     .notNull(),
-  clockIn: timestamp("clock_in").notNull(),
-  clockOut: timestamp("clock_out"),
-  breakStart: timestamp("break_start"),
-  breakEnd: timestamp("break_end"),
+  clockIn: timestamp("clock_in", { withTimezone: true }).notNull(),
+  clockOut: timestamp("clock_out", { withTimezone: true }),
+  breakStart: timestamp("break_start", { withTimezone: true }),
+  breakEnd: timestamp("break_end", { withTimezone: true }),
   totalHours: decimal("total_hours", { precision: 4, scale: 2 }),
   overtime: decimal("overtime", { precision: 4, scale: 2 }).default("0.00"),
   status: text("status").notNull().default("present"), // "present", "absent", "late", "half_day"
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const storeSettings = pgTable("store_settings", {
@@ -106,6 +119,7 @@ export const storeSettings = pgTable("store_settings", {
   taxId: text("tax_id"),
   businessType: text("business_type").default("restaurant"),
   pinCode: text("pin_code"),
+  isAdmin: boolean("is_admin").default(false),
   address: text("address"),
   phone: text("phone"),
   email: text("email"),
@@ -118,8 +132,8 @@ export const storeSettings = pgTable("store_settings", {
   defaultZone: text("default_zone").default("A"),
   floorPrefix: text("floor_prefix").default("층"),
   zonePrefix: text("zone_prefix").default("구역"),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const suppliers = pgTable("suppliers", {
@@ -135,8 +149,12 @@ export const suppliers = pgTable("suppliers", {
   paymentTerms: text("payment_terms").default("30일"), // "30일", "60일", "현금" 등
   status: text("status").notNull().default("active"), // "active", "inactive"
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const purchaseReceipts = pgTable("purchase_receipts", {
@@ -145,17 +163,25 @@ export const purchaseReceipts = pgTable("purchase_receipts", {
   supplierId: integer("supplier_id")
     .references(() => suppliers.id)
     .notNull(),
-  employeeId: integer("employee_id")
-    .references(() => employees.id),
+  employeeId: integer("employee_id").references(() => employees.id),
   purchaseDate: date("purchase_date"),
   actualDeliveryDate: date("actual_delivery_date"),
-  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  tax: decimal("tax", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  total: decimal("total", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  status: text("status").notNull().default("pending"),
+  purchaseType: text("purchase_type"), // raw_materials, expenses, others
+  subtotal: decimal("subtotal", { precision: 18, scale: 2 })
+    .notNull()
+    .default("0.00"),
+  tax: decimal("tax", { precision: 18, scale: 2 }).notNull().default("0.00"),
+  total: decimal("total", { precision: 18, scale: 2 })
+    .notNull()
+    .default("0.00"),
+  isPaid: boolean("is_paid").notNull().default(false),
+  paymentMethod: text("payment_method"),
+  paymentAmount: decimal("payment_amount", { precision: 18, scale: 2 }),
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const purchaseReceiptItems = pgTable("purchase_receipt_items", {
@@ -163,16 +189,28 @@ export const purchaseReceiptItems = pgTable("purchase_receipt_items", {
   purchaseReceiptId: integer("purchase_receipt_id")
     .references(() => purchaseReceipts.id)
     .notNull(),
-  productId: integer("product_id")
-    .references(() => products.id),
+  productId: integer("product_id").references(() => products.id),
   productName: text("product_name").notNull(),
   sku: text("sku"),
   quantity: integer("quantity").notNull(),
   receivedQuantity: integer("received_quantity").notNull().default(0),
-  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
-  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  unitPrice: decimal("unit_price", { precision: 15, scale: 2 }).notNull(),
+  total: decimal("total", { precision: 15, scale: 2 }).notNull(),
   taxRate: decimal("tax_rate", { precision: 5, scale: 2 }).default("0.00"),
+  discountPercent: decimal("discount_percent", {
+    precision: 5,
+    scale: 2,
+  }).default("0.00"),
+  discountAmount: decimal("discount_amount", {
+    precision: 15,
+    scale: 2,
+  }).default("0.00"),
+  rowOrder: integer("row_order").default(0),
   notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const purchaseReceiptDocuments = pgTable("purchase_receipt_documents", {
@@ -182,13 +220,14 @@ export const purchaseReceiptDocuments = pgTable("purchase_receipt_documents", {
     .notNull(),
   fileName: text("file_name").notNull(),
   originalFileName: text("original_file_name").notNull(),
-  fileType: text("file_type").notNull(), // "image/jpeg", "image/png", "application/pdf", etc.
+  fileType: text("file_type").notNull(),
   fileSize: integer("file_size").notNull(),
   filePath: text("file_path").notNull(),
   description: text("description"),
-  uploadedBy: integer("uploaded_by")
-    .references(() => employees.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  uploadedBy: integer("uploaded_by").references(() => employees.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const tables = pgTable("tables", {
@@ -196,27 +235,33 @@ export const tables = pgTable("tables", {
   tableNumber: varchar("table_number", { length: 50 }).notNull(),
   capacity: integer("capacity").default(4),
   status: varchar("status", { length: 20 }).default("available"),
-  floor: varchar("floor", { length: 50 }).default("1층"), // Added floor field
+  floor: varchar("floor", { length: 50 }).default("1"), // Added floor field
   zone: varchar("zone", { length: 50 }).default("A"), // Added zone field
   qrCode: text("qr_code"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderNumber: text("order_number").notNull().unique(),
-  tableId: integer("table_id")
-    .references(() => tables.id),
+  tableId: integer("table_id").references(() => tables.id),
   employeeId: integer("employee_id").references(() => employees.id),
   status: text("status").notNull().default("pending"), // "pending", "confirmed", "preparing", "ready", "served", "paid", "cancelled"
   customerName: text("customer_name"),
+  customerPhone: text("customer_phone"), // Add customer phone field
+  customerTaxCode: text("customer_tax_code"), // Add customer tax code field
   customerCount: integer("customer_count").default(1),
   subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
   tax: decimal("tax", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  discount: decimal("discount", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  discount: decimal("discount", { precision: 10, scale: 2 })
+    .notNull()
+    .default("0.00"),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
   paymentMethod: text("payment_method"), // "cash", "card", "mobile", "einvoice"
   paymentStatus: text("payment_status").notNull().default("pending"), // "pending", "paid", "refunded"
+  isPaid: boolean("is_paid").notNull().default(false), // Payment status flag
   einvoiceStatus: integer("einvoice_status").notNull().default(0), // 0=Chưa phát hành, 1=Đã phát hành, 2=Tạo nháp, 3=Đã duyệt, 4=Đã bị thay thế (hủy), 5=Thay thế tạm, 6=Thay thế, 7=Đã bị điều chỉnh, 8=Điều chỉnh tạm, 9=Điều chỉnh, 10=Đã hủy
   templateNumber: varchar("template_number", { length: 50 }),
   symbol: varchar("symbol", { length: 20 }),
@@ -224,9 +269,18 @@ export const orders = pgTable("orders", {
   salesChannel: text("sales_channel").notNull().default("table"), // "table", "pos", "online", "delivery"
   priceIncludeTax: boolean("price_include_tax").notNull().default(false),
   notes: text("notes"),
-  orderedAt: timestamp("ordered_at").defaultNow().notNull(),
-  servedAt: timestamp("served_at"),
-  paidAt: timestamp("paid_at"),
+  orderedAt: timestamp("ordered_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  storeCode: varchar("store_code", { length: 50 }), // Add store code field
+  servedAt: timestamp("served_at", { withTimezone: true }),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const orderItems = pgTable("order_items", {
@@ -240,7 +294,13 @@ export const orderItems = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
-  discount: decimal("discount", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  discount: decimal("discount", { precision: 10, scale: 2 })
+    .notNull()
+    .default("0.00"),
+  tax: decimal("tax", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  priceBeforeTax: decimal("price_before_tax", { precision: 10, scale: 2 })
+    .notNull()
+    .default("0.00"),
   notes: text("notes"), // special requests
 });
 
@@ -253,49 +313,85 @@ export const insertProductSchema = createInsertSchema(products)
     id: true,
   })
   .extend({
-    price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "Price must be a positive number",
-    }),
+    price: z.union([z.string(), z.number()]).refine(
+      (val) => {
+        const numVal =
+          typeof val === "string" ? parseInt(val.replace(/[^0-9]/g, "")) : val;
+        return !isNaN(numVal) && numVal > 0 && numVal < 100000000;
+      },
+      {
+        message: "Price must be a positive number less than 100,000,000",
+      },
+    ),
     stock: z.number().min(0, "Stock cannot be negative"),
-    productType: z.number().min(1).max(3, "Product type is required"),
-    taxRate: z
-      .string()
-      .refine(
-        (val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 100,
-        {
-          message: "Tax rate must be between 0 and 100",
-        },
-      ),
+    productType: z.number().min(1).max(4, "Product type is required"),
+    taxRate: z.union([z.string(), z.number()]).transform((val) => {
+      // Handle special tax rate values
+      if (val === "KCT" || val === "KKKNT") {
+        return "0"; // Store as "0" for database, taxRateName will store the display value
+      }
+
+      // Accept integer percentage values: 0, 5, 8, 10
+      const numVal = typeof val === "string" ? parseFloat(val) : val;
+
+      if (isNaN(numVal) || numVal < 0 || numVal > 100) {
+        throw new Error("Tax rate must be between 0 and 100");
+      }
+
+      // Return as integer string (no decimals)
+      return Math.floor(numVal).toString();
+    }),
+    taxRateName: z.string().optional(), // Added taxRateName to schema
     priceIncludesTax: z.boolean().optional().default(false),
     afterTaxPrice: z
-      .string()
+      .union([z.string(), z.number(), z.null(), z.undefined()])
       .optional()
       .refine(
-        (val) => !val || (!isNaN(Number(val)) && Number(val) > 0),
+        (val) => {
+          if (!val || val === null || val === undefined) return true;
+          if (typeof val === "string" && val.trim() === "") return true;
+          const numVal =
+            typeof val === "string"
+              ? parseInt(val.replace(/[^0-9]/g, ""))
+              : val;
+          return !isNaN(numVal) && numVal > 0;
+        },
         {
           message: "After tax price must be a positive number",
         },
       ),
     beforeTaxPrice: z
-      .string()
+      .union([z.string(), z.number(), z.null(), z.undefined()])
       .optional()
       .refine(
-        (val) => !val || (!isNaN(Number(val)) && Number(val) > 0),
+        (val) => {
+          if (!val || val === null || val === undefined) return true;
+          const numVal = typeof val === "string" ? Number(val) : val;
+          return !isNaN(numVal) && numVal >= 0;
+        },
         {
           message: "Before tax price must be a positive number",
         },
       ),
+    sku: z.string().optional(),
+    name: z.string().min(1, "Product name is required"),
+    categoryId: z.number().min(1, "Category is required"),
+    floor: z.union([z.string(), z.number()]).optional().default("1"),
+    zone: z.union([z.string(), z.number()]).optional().default("A"),
+    unit: z.string().optional(),
   });
 
-export const insertTransactionSchema = createInsertSchema(transactions).omit({
-  id: true,
-  createdAt: true,
-}).extend({
-  invoiceId: z.number().nullable().optional(),
-  invoiceNumber: z.string().nullable().optional(),
-  notes: z.string().nullable().optional(),
-  orderId: z.number().nullable().optional(),
-});
+export const insertTransactionSchema = createInsertSchema(transactions)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    invoiceId: z.number().nullable().optional(),
+    invoiceNumber: z.string().nullable().optional(),
+    notes: z.string().nullable().optional(),
+    orderId: z.number().nullable().optional(),
+  });
 
 export const insertTransactionItemSchema = createInsertSchema(
   transactionItems,
@@ -341,7 +437,7 @@ export const insertTableSchema = createInsertSchema(tables)
         message: "Status must be available, occupied, reserved, or maintenance",
       }),
     }),
-    floor: z.string().optional().default("1층"),
+    floor: z.string().optional().default("1"),
   });
 
 export const insertOrderSchema = createInsertSchema(orders)
@@ -365,40 +461,48 @@ export const insertOrderSchema = createInsertSchema(orders)
         errorMap: () => ({ message: "Invalid order status" }),
       },
     ),
-    paymentMethod: z.string().optional(),
+    paymentMethod: z.string().nullable().optional(),
     paymentStatus: z.enum(["pending", "paid", "refunded"], {
       errorMap: () => ({ message: "Invalid payment status" }),
     }),
     einvoiceStatus: z.number().min(0).max(10).optional().default(0),
-    salesChannel: z.enum(["table", "pos", "online", "delivery"]).optional().default("table"),
+    salesChannel: z
+      .enum(["table", "pos", "online", "delivery"])
+      .optional()
+      .default("table"),
     priceIncludeTax: z.boolean().optional().default(false),
-    paidAt: z.union([z.date(), z.string().datetime()]).optional().transform((val) => {
-      if (typeof val === 'string') {
-        return new Date(val);
-      }
-      return val;
-    }),
+    paidAt: z
+      .union([z.date(), z.string().datetime()])
+      .optional()
+      .transform((val) => {
+        if (typeof val === "string") {
+          return new Date(val);
+        }
+        return val;
+      }),
   });
 
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
-  id: true,
-  orderId: true,
-}).extend({
-  discount: z.string().optional().default("0.00"),
-});
+export const insertOrderItemSchema = createInsertSchema(orderItems)
+  .omit({
+    id: true,
+    orderId: true,
+  })
+  .extend({
+    discount: z.string().optional().default("0.00"),
+  });
 
-export const insertStoreSettingsSchema = createInsertSchema(storeSettings).omit(
-  {
+export const insertStoreSettingsSchema = createInsertSchema(storeSettings)
+  .omit({
     id: true,
     updatedAt: true,
     createdAt: true,
-  },
-).extend({
-  priceIncludesTax: z.boolean().optional().default(false),
-  defaultFloor: z.string().optional().default("1"),
-  enableMultiFloor: z.boolean().optional().default(false),
-  floorPrefix: z.string().optional().default("층"),
-});
+  })
+  .extend({
+    priceIncludesTax: z.boolean().optional().default(false),
+    defaultFloor: z.string().optional().default("1"),
+    enableMultiFloor: z.boolean().optional().default(false),
+    floorPrefix: z.string().optional().default("층"),
+  });
 
 export const insertSupplierSchema = createInsertSchema(suppliers)
   .omit({
@@ -426,18 +530,26 @@ export const insertPurchaseReceiptSchema = createInsertSchema(purchaseReceipts)
   .extend({
     purchaseDate: z.string().optional(),
     actualDeliveryDate: z.string().optional(),
-    subtotal: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-      message: "Subtotal must be a positive number",
-    }),
+    purchaseType: z.string().optional(),
+    subtotal: z
+      .string()
+      .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+        message: "Subtotal must be a positive number",
+      }),
     tax: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
       message: "Tax must be a positive number",
     }),
     total: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
       message: "Total must be a positive number",
     }),
+    isPaid: z.boolean().optional().default(false),
+    paymentMethod: z.string().optional(),
+    paymentAmount: z.string().optional(),
   });
 
-export const insertPurchaseReceiptItemSchema = createInsertSchema(purchaseReceiptItems)
+export const insertPurchaseReceiptItemSchema = createInsertSchema(
+  purchaseReceiptItems,
+)
   .omit({
     id: true,
     purchaseReceiptId: true,
@@ -445,15 +557,22 @@ export const insertPurchaseReceiptItemSchema = createInsertSchema(purchaseReceip
   .extend({
     quantity: z.number().min(1, "Quantity must be at least 1"),
     receivedQuantity: z.number().min(0, "Received quantity cannot be negative"),
-    unitPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "Unit price must be a positive number",
-    }),
+    unitPrice: z
+      .string()
+      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+        message: "Unit price must be a positive number",
+      }),
     total: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
       message: "Total must be a positive number",
     }),
+    discountPercent: z.string().optional().default("0.00"),
+    discountAmount: z.string().optional().default("0.00"),
+    rowOrder: z.number().optional().default(0),
   });
 
-export const insertPurchaseReceiptDocumentSchema = createInsertSchema(purchaseReceiptDocuments)
+export const insertPurchaseReceiptDocumentSchema = createInsertSchema(
+  purchaseReceiptDocuments,
+)
   .omit({
     id: true,
     purchaseReceiptId: true,
@@ -463,8 +582,6 @@ export const insertPurchaseReceiptDocumentSchema = createInsertSchema(purchaseRe
     fileSize: z.number().min(0, "File size cannot be negative"),
   });
 
-
-
 export type Category = typeof categories.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
@@ -473,29 +590,30 @@ export type Employee = InferSelectModel<typeof employees>;
 export type InsertEmployee = InferInsertModel<typeof employees>;
 export type PurchaseReceipt = typeof purchaseReceipts.$inferSelect;
 export type PurchaseReceiptItem = typeof purchaseReceiptItems.$inferSelect;
-export type PurchaseReceiptDocument = typeof purchaseReceiptDocuments.$inferSelect;
+export type PurchaseReceiptDocument =
+  typeof purchaseReceiptDocuments.$inferSelect;
 
 // Customers table
 export const customers = pgTable("customers", {
   id: serial("id").primaryKey(),
-  customerId: varchar("customer_id", { length: 20 }).unique().notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  phone: varchar("phone", { length: 20 }),
-  email: varchar("email", { length: 100 }),
+  customerId: text("customer_id").notNull().unique(),
+  name: text("name").notNull(),
+  phone: text("phone"),
+  email: text("email"),
   address: text("address"),
-  dateOfBirth: date("date_of_birth"),
-  visitCount: integer("visit_count").default(0),
-  totalSpent: decimal("total_spent", { precision: 10, scale: 2 }).default(
-    "0.00",
-  ),
+  taxCode: text("tax_code"),
   points: integer("points").default(0),
-  membershipLevel: varchar("membership_level", { length: 20 }).default(
-    "SILVER",
-  ),
+  membershipTier: text("membership_tier").default("bronze"),
+  totalSpent: decimal("total_spent", { precision: 12, scale: 2 }).default("0"),
+  lastVisit: text("last_visit"),
   notes: text("notes"),
-  status: varchar("status", { length: 20 }).default("active"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 // Point transactions table for tracking point history
@@ -511,7 +629,7 @@ export const pointTransactions = pgTable("point_transactions", {
   employeeId: integer("employee_id").references(() => employees.id), // who processed the transaction
   previousBalance: integer("previous_balance").notNull(),
   newBalance: integer("new_balance").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const insertCustomerSchema = createInsertSchema(customers)
@@ -578,13 +696,17 @@ export const invoices = pgTable("invoices", {
   tax: decimal("tax", { precision: 10, scale: 2 }).notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
   paymentMethod: integer("payment_method").notNull().default(1), // 1=Tiền mặt,2=Chuyển khoản,3=TM/CK,4=Đối trừ công nợ
-  invoiceDate: timestamp("invoice_date").notNull(),
+  invoiceDate: timestamp("invoice_date", { withTimezone: true }).notNull(),
   status: varchar("status", { length: 20 }).notNull().default("draft"), // 'draft', 'published', 'cancelled'
   einvoiceStatus: integer("einvoice_status").notNull().default(0), // 0=Chưa phát hành, 1=Đã phát hành, 2=Tạo nháp, 3=Đã duyệt, 4=Đã bị thay thế (hủy), 5=Thay thế tạm, 6=Thay thế, 7=Đã bị điều chỉnh, 8=Điều chỉnh tạm, 9=Điều chỉnh, 10=Đã hủy
   invoiceStatus: integer("invoice_status").notNull().default(1), // 1=Hoàn thành, 2=Đang phục vụ, 3=Đã hủy
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const invoiceItems = pgTable("invoice_items", {
@@ -599,7 +721,9 @@ export const invoiceItems = pgTable("invoice_items", {
   quantity: integer("quantity").notNull(),
   unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
-  taxRate: decimal("tax_rate", { precision: 5, scale: 2 }).notNull().default("0.00"),
+  taxRate: decimal("tax_rate", { precision: 5, scale: 2 })
+    .notNull()
+    .default("0.00"),
 });
 
 export const eInvoiceConnections = pgTable("einvoice_connections", {
@@ -610,20 +734,30 @@ export const eInvoiceConnections = pgTable("einvoice_connections", {
   password: text("password").notNull(),
   softwareName: varchar("software_name", { length: 50 }).notNull(),
   loginUrl: text("login_url"),
-  signMethod: varchar("sign_method", { length: 20 }).notNull().default("Ký server"),
+  signMethod: varchar("sign_method", { length: 20 })
+    .notNull()
+    .default("Ký server"),
   cqtCode: varchar("cqt_code", { length: 20 }).notNull().default("Cấp nhật"),
   notes: text("notes"),
   isDefault: boolean("is_default").notNull().default(false),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const printerConfigs = pgTable("printer_configs", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  printerType: varchar("printer_type", { length: 50 }).notNull().default("thermal"),
-  connectionType: varchar("connection_type", { length: 50 }).notNull().default("usb"),
+  printerType: varchar("printer_type", { length: 50 })
+    .notNull()
+    .default("thermal"),
+  connectionType: varchar("connection_type", { length: 50 })
+    .notNull()
+    .default("usb"),
   ipAddress: varchar("ip_address", { length: 45 }),
   port: integer("port").default(9100),
   macAddress: varchar("mac_address", { length: 17 }),
@@ -632,8 +766,15 @@ export const printerConfigs = pgTable("printer_configs", {
   isEmployee: boolean("is_employee").notNull().default(false),
   isKitchen: boolean("is_kitchen").notNull().default(false),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  copies: integer("copies").notNull().default(0),
+  floor: varchar("floor", { length: 50 }).default("1"),
+  zone: varchar("zone", { length: 50 }).default("A"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const invoiceTemplates = pgTable("invoice_templates", {
@@ -642,12 +783,16 @@ export const invoiceTemplates = pgTable("invoice_templates", {
   templateNumber: varchar("template_number", { length: 50 }).notNull(),
   templateCode: varchar("template_code", { length: 50 }),
   symbol: varchar("symbol", { length: 20 }).notNull(),
-  useCK: boolean("use_ck").notNull().default(true),
+  useCk: boolean("use_ck").notNull().default(true),
   notes: text("notes"),
   isDefault: boolean("is_default").notNull().default(false),
   isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export type PointTransaction = typeof pointTransactions.$inferSelect;
@@ -673,8 +818,12 @@ export type InsertPointTransaction = z.infer<
   typeof insertPointTransactionSchema
 >;
 export type InsertPurchaseReceipt = z.infer<typeof insertPurchaseReceiptSchema>;
-export type InsertPurchaseReceiptItem = z.infer<typeof insertPurchaseReceiptItemSchema>;
-export type InsertPurchaseReceiptDocument = z.infer<typeof insertPurchaseReceiptDocumentSchema>;
+export type InsertPurchaseReceiptItem = z.infer<
+  typeof insertPurchaseReceiptItemSchema
+>;
+export type InsertPurchaseReceiptDocument = z.infer<
+  typeof insertPurchaseReceiptDocumentSchema
+>;
 
 export const insertEInvoiceConnectionSchema = createInsertSchema(
   eInvoiceConnections,
@@ -697,13 +846,15 @@ export const insertInvoiceTemplateSchema = createInsertSchema(
   updatedAt: true,
 });
 
-export const insertInvoiceSchema = createInsertSchema(invoices).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  einvoiceStatus: z.number().min(0).max(10).optional().default(0),
-});
+export const insertInvoiceSchema = createInsertSchema(invoices)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    einvoiceStatus: z.number().min(0).max(10).optional().default(0),
+  });
 
 export const insertInvoiceItemSchema = createInsertSchema(invoiceItems).omit({
   id: true,
@@ -721,14 +872,17 @@ export type InvoiceItem = typeof invoiceItems.$inferSelect;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type InsertInvoiceItem = z.infer<typeof insertInvoiceItemSchema>;
 
-export const insertPrinterConfigSchema = createInsertSchema(printerConfigs).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  printerType: z.enum(["thermal", "inkjet", "laser"]).optional(),
-  connectionType: z.enum(["usb", "network", "bluetooth"]).optional(),
-});
+export const insertPrinterConfigSchema = createInsertSchema(printerConfigs)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    printerType: z.enum(["thermal", "inkjet", "laser"]).optional(),
+    connectionType: z.enum(["usb", "network", "bluetooth"]).optional(),
+    copies: z.number().min(0).optional().default(0),
+  });
 
 export type PrinterConfig = typeof printerConfigs.$inferSelect;
 export type InsertPrinterConfig = z.infer<typeof insertPrinterConfigSchema>;
@@ -743,6 +897,7 @@ export type CartItem = {
   imageUrl?: string;
   stock: number;
   taxRate?: string;
+  taxRateName?: string; // Added taxRateName to CartItem type
   afterTaxPrice?: string;
 };
 
@@ -844,18 +999,21 @@ export const suppliersRelations = relations(suppliers, ({ many }) => ({
   purchaseReceipts: many(purchaseReceipts),
 }));
 
-export const purchaseReceiptsRelations = relations(purchaseReceipts, ({ one, many }) => ({
-  supplier: one(suppliers, {
-    fields: [purchaseReceipts.supplierId],
-    references: [suppliers.id],
+export const purchaseReceiptsRelations = relations(
+  purchaseReceipts,
+  ({ one, many }) => ({
+    supplier: one(suppliers, {
+      fields: [purchaseReceipts.supplierId],
+      references: [suppliers.id],
+    }),
+    employee: one(employees, {
+      fields: [purchaseReceipts.employeeId],
+      references: [employees.id],
+    }),
+    items: many(purchaseReceiptItems),
+    documents: many(purchaseReceiptDocuments),
   }),
-  employee: one(employees, {
-    fields: [purchaseReceipts.employeeId],
-    references: [employees.id],
-  }),
-  items: many(purchaseReceiptItems),
-  documents: many(purchaseReceiptDocuments),
-}));
+);
 
 export const purchaseReceiptItemsRelations = relations(
   purchaseReceiptItems,
@@ -905,3 +1063,75 @@ export type InventoryTransaction = typeof inventoryTransactions.$inferSelect;
 export type InsertInventoryTransaction = z.infer<
   typeof insertInventoryTransactionSchema
 >;
+
+// Purchase orders table
+export const purchaseOrders = pgTable("purchase_orders", {
+  id: serial("id").primaryKey(),
+  orderNumber: varchar("order_number", { length: 50 }).notNull(),
+  supplierId: integer("supplier_id").references(() => suppliers.id),
+  status: varchar("status", { length: 20 }).default("pending"),
+  expectedDeliveryDate: timestamp("expected_delivery_date", {
+    withTimezone: true,
+  }),
+  notes: text("notes"),
+  total: numeric("total", { precision: 10, scale: 2 }).default("0"),
+  createdAt: timestamp("created_at", { withTimezone: true }).default(
+    sql`now()`,
+  ),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).default(
+    sql`now()`,
+  ),
+});
+
+// Income vouchers table
+export const incomeVouchers = pgTable("income_vouchers", {
+  id: serial("id").primaryKey(),
+  voucherNumber: varchar("voucher_number", { length: 50 }).notNull(),
+  date: varchar("date", { length: 10 }).notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  account: varchar("account", { length: 50 }).notNull(),
+  recipient: varchar("recipient", { length: 255 }).notNull(),
+  receiverName: varchar("receiver_name", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  category: varchar("category", { length: 50 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Expense vouchers table
+export const expenseVouchers = pgTable("expense_vouchers", {
+  id: serial("id").primaryKey(),
+  voucherNumber: varchar("voucher_number", { length: 50 }).notNull(),
+  date: varchar("date", { length: 10 }).notNull(),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  account: varchar("account", { length: 50 }).notNull(),
+  recipient: varchar("recipient", { length: 255 }).notNull(),
+  receiverName: varchar("receiver_name", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  category: varchar("category", { length: 50 }).notNull(),
+  description: text("description"),
+  supplierId: integer("supplier_id").references(() => suppliers.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Payment methods table
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  nameKey: varchar("name_key", { length: 50 }).notNull().unique(),
+  name: varchar("name", { length: 100 }).notNull(),
+  type: varchar("type", { length: 50 }).notNull(),
+  icon: text("icon").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  sortOrder: integer("sort_order").default(0),
+  isSystem: boolean("is_system").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type IncomeVoucher = typeof incomeVouchers.$inferSelect;
+export type InsertIncomeVoucher = typeof incomeVouchers.$inferInsert;
+
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type InsertPaymentMethod = typeof paymentMethods.$inferInsert;
