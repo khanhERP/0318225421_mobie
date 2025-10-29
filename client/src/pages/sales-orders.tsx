@@ -104,19 +104,45 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const [activeTab, setActiveTab] = useState<string>("tables");
 
   // Fetch orders
-  const {
-    data: orders = [],
-    isLoading: ordersLoading,
-    refetch: refetchOrders,
-  } = useQuery({
-    queryKey: ["orders"],
+  const { data: orders = [], isLoading: ordersLoading, refetch: refetchOrders,} = useQuery({
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range", startDate, endDate],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders");
-      if (!response.ok) {
-        throw new Error("Failed to fetch orders");
+      try {
+        console.log(`Dashboard - Date Range Query:`, {
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+          apiUrl: `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${startDate}/${endDate}`,
+        });
+
+        const response = await fetch(
+          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${startDate}/${endDate}`,
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        console.log(`Dashboard - Orders received from API:`, {
+          count: data?.length || 0,
+          sampleOrder: data?.[0]
+            ? {
+                id: data[0].id,
+                orderNumber: data[0].orderNumber,
+                orderedAt: data[0].orderedAt,
+                createdAt: data[0].createdAt,
+                status: data[0].status,
+              }
+            : null,
+        });
+
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        return [];
       }
-      return response.json() as Promise<Order[]>;
     },
+    enabled: Boolean(startDate && endDate),
+    staleTime: 30000, // Cache for 30 seconds to reduce re-fetching
   });
 
   // Fetch order items
@@ -269,16 +295,23 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       );
     }
 
+    let dateCompare = storeSettings?.storeCode?.startsWith("CH-")
+      ? "updatedAt"
+      : "orderedAt";
     // Apply date range filter
     if (dateRange === "today") {
       const today = new Date().toISOString().split("T")[0];
       filtered = filtered.filter((order) => {
-        const orderDate = new Date(order.orderedAt).toISOString().split("T")[0];
+        const orderDate = new Date(order[dateCompare])
+          .toISOString()
+          .split("T")[0];
         return orderDate === today;
       });
     } else if (dateRange === "custom" && startDate && endDate) {
       filtered = filtered.filter((order) => {
-        const orderDate = new Date(order.orderedAt).toISOString().split("T")[0];
+        const orderDate = new Date(order[dateCompare])
+          .toISOString()
+          .split("T")[0];
         return orderDate >= startDate && orderDate <= endDate;
       });
     }
@@ -286,7 +319,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
     // Sort by most recent first
     return filtered.sort(
       (a, b) =>
-        new Date(b.orderedAt).getTime() - new Date(a.orderedAt).getTime(),
+        new Date(b[dateCompare]).getTime() - new Date(a[dateCompare]).getTime(),
     );
   }, [
     orders,
@@ -296,6 +329,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
     dateRange,
     startDate,
     endDate,
+    storeSettings,
   ]);
 
   // Handle order selection

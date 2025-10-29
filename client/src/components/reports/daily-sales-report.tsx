@@ -124,7 +124,10 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
     );
 
     paidOrders.forEach((order) => {
-      const orderDate = new Date(order.orderedAt);
+      let orderDate = new Date(order.orderedAt);
+      if (storeSettings.storeCode.startsWith("CH-")) {
+        orderDate = new Date(order.updatedAt);
+      }
       const dateKey = format(orderDate, "yyyy-MM-dd");
 
       if (!groupedData[dateKey]) {
@@ -388,9 +391,10 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
     );
 
     // Filter orders by search term
-    const filteredOrders = selectedDateData?.orders.filter((order) =>
-      order.orderNumber.toLowerCase().includes(orderSearchTerm.toLowerCase())
-    ) || [];
+    const filteredOrders =
+      selectedDateData?.orders.filter((order) =>
+        order.orderNumber.toLowerCase().includes(orderSearchTerm.toLowerCase()),
+      ) || [];
 
     return (
       <div className="min-h-screen bg-green-50">
@@ -427,7 +431,9 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
           <div className="relative">
             <input
               type="text"
-              placeholder={t("reports.searchOrderNumber") || "Tìm kiếm theo mã đơn hàng..."}
+              placeholder={
+                t("reports.searchOrderNumber") || "Tìm kiếm theo mã đơn hàng..."
+              }
               value={orderSearchTerm}
               onChange={(e) => setOrderSearchTerm(e.target.value)}
               className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -462,7 +468,9 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
 
           {filteredOrders.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              {orderSearchTerm ? t("reports.noOrdersFound") || "Không tìm thấy đơn hàng" : t("reports.noOrders")}
+              {orderSearchTerm
+                ? t("reports.noOrdersFound") || "Không tìm thấy đơn hàng"
+                : t("reports.noOrders")}
             </div>
           )}
 
@@ -471,11 +479,15 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
             <CardContent className="p-4">
               <div className="flex justify-between items-center">
                 <span className="font-semibold">
-                  {t("reports.total")} ({filteredOrders.length}/{selectedDateData?.orders.length || 0})
+                  {t("reports.total")} ({filteredOrders.length}/
+                  {selectedDateData?.orders.length || 0})
                 </span>
                 <span className="font-semibold text-green-600">
                   {formatCurrency(
-                    filteredOrders.reduce((sum, order) => sum + parseFloat(order.total), 0)
+                    filteredOrders.reduce(
+                      (sum, order) => sum + parseFloat(order.total),
+                      0,
+                    ),
                   )}
                 </span>
               </div>
@@ -532,23 +544,37 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 const yesterday = subDays(today, 1);
                 const yesterdayStr = format(yesterday, "yyyy-MM-dd");
                 const dayBeforeYesterday = subDays(today, 2);
-                const dayBeforeYesterdayStr = format(dayBeforeYesterday, "yyyy-MM-dd");
-                
+                const dayBeforeYesterdayStr = format(
+                  dayBeforeYesterday,
+                  "yyyy-MM-dd",
+                );
+
                 // Check if it's today
-                if (activeFilter === "today" || (dateRange.start === todayStr && dateRange.end === todayStr)) {
+                if (
+                  activeFilter === "today" ||
+                  (dateRange.start === todayStr && dateRange.end === todayStr)
+                ) {
                   return t("reports.toDay");
                 }
-                
+
                 // Check if it's yesterday
-                if (activeFilter === "yesterday" || (dateRange.start === yesterdayStr && dateRange.end === yesterdayStr)) {
+                if (
+                  activeFilter === "yesterday" ||
+                  (dateRange.start === yesterdayStr &&
+                    dateRange.end === yesterdayStr)
+                ) {
                   return t("reports.yesterday");
                 }
-                
+
                 // Check if it's day before yesterday
-                if (activeFilter === "dayBeforeYesterday" || (dateRange.start === dayBeforeYesterdayStr && dateRange.end === dayBeforeYesterdayStr)) {
+                if (
+                  activeFilter === "dayBeforeYesterday" ||
+                  (dateRange.start === dayBeforeYesterdayStr &&
+                    dateRange.end === dayBeforeYesterdayStr)
+                ) {
                   return t("reports.dayBeforeYesterday");
                 }
-                
+
                 // Check if it's last week
                 const currentDay = today.getDay();
                 const daysToLastMonday = currentDay === 0 ? 6 : currentDay - 1;
@@ -556,35 +582,59 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 const lastSunday = subDays(today, daysToLastMonday + 1);
                 const lastWeekStart = format(lastMonday, "yyyy-MM-dd");
                 const lastWeekEnd = format(lastSunday, "yyyy-MM-dd");
-                if (activeFilter === "lastWeek" || (dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd)) {
+                if (
+                  activeFilter === "lastWeek" ||
+                  (dateRange.start === lastWeekStart &&
+                    dateRange.end === lastWeekEnd)
+                ) {
                   return t("reports.lastWeek");
                 }
-                
+
                 // Check if it's last month
-                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                const lastMonth = new Date(
+                  today.getFullYear(),
+                  today.getMonth() - 1,
+                  1,
+                );
+                const lastMonthEnd = new Date(
+                  today.getFullYear(),
+                  today.getMonth(),
+                  0,
+                );
                 const lastMonthStart = format(lastMonth, "yyyy-MM-dd");
                 const lastMonthEndStr = format(lastMonthEnd, "yyyy-MM-dd");
-                if (activeFilter === "lastMonth" || (dateRange.start === lastMonthStart && dateRange.end === lastMonthEndStr)) {
+                if (
+                  activeFilter === "lastMonth" ||
+                  (dateRange.start === lastMonthStart &&
+                    dateRange.end === lastMonthEndStr)
+                ) {
                   return t("reports.lastMonth");
                 }
-                
+
                 // Check if it's this year
                 const yearStart = new Date(today.getFullYear(), 0, 1);
                 const yearStartStr = format(yearStart, "yyyy-MM-dd");
-                if (activeFilter === "thisYear" || (dateRange.start === yearStartStr && dateRange.end === todayStr)) {
+                if (
+                  activeFilter === "thisYear" ||
+                  (dateRange.start === yearStartStr &&
+                    dateRange.end === todayStr)
+                ) {
                   return t("reports.thisYear");
                 }
-                
+
                 // Check if it's this month (default)
                 const monthStart = startOfMonth(today);
                 const monthEnd = endOfMonth(today);
                 const thisMonthStart = format(monthStart, "yyyy-MM-dd");
                 const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
-                if (activeFilter === "thisMonth" || (dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd)) {
+                if (
+                  activeFilter === "thisMonth" ||
+                  (dateRange.start === thisMonthStart &&
+                    dateRange.end === thisMonthEnd)
+                ) {
                   return t("reports.thisMonth");
                 }
-                
+
                 // Custom date range
                 return `${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`;
               })()}
@@ -702,7 +752,8 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 onClick={() => {
                   const today = new Date();
                   const currentDay = today.getDay();
-                  const daysToLastMonday = currentDay === 0 ? 6 : currentDay - 1;
+                  const daysToLastMonday =
+                    currentDay === 0 ? 6 : currentDay - 1;
                   const lastMonday = subDays(today, daysToLastMonday + 7);
                   const lastSunday = subDays(today, daysToLastMonday + 1);
                   setDateRange({
@@ -743,8 +794,16 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 size="sm"
                 onClick={() => {
                   const today = new Date();
-                  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                  const lastMonth = new Date(
+                    today.getFullYear(),
+                    today.getMonth() - 1,
+                    1,
+                  );
+                  const lastMonthEnd = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    0,
+                  );
                   setDateRange({
                     start: format(lastMonth, "yyyy-MM-dd"),
                     end: format(lastMonthEnd, "yyyy-MM-dd"),
