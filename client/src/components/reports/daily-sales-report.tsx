@@ -526,7 +526,57 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
               className="text-sm text-gray-700 hover:bg-gray-300 px-2 py-1"
               onClick={() => setShowDatePicker(!showDatePicker)}
             >
-              {t("reports.thisMonth")}
+              {(() => {
+                const today = new Date();
+                const todayStr = format(today, "yyyy-MM-dd");
+                const yesterday = subDays(today, 1);
+                const yesterdayStr = format(yesterday, "yyyy-MM-dd");
+                const dayBeforeYesterday = subDays(today, 2);
+                const dayBeforeYesterdayStr = format(dayBeforeYesterday, "yyyy-MM-dd");
+                
+                // Check if it's today
+                if (activeFilter === "today" || (dateRange.start === todayStr && dateRange.end === todayStr)) {
+                  return t("reports.toDay");
+                }
+                
+                // Check if it's yesterday
+                if (activeFilter === "yesterday" || (dateRange.start === yesterdayStr && dateRange.end === yesterdayStr)) {
+                  return t("reports.yesterday");
+                }
+                
+                // Check if it's day before yesterday
+                if (activeFilter === "dayBeforeYesterday" || (dateRange.start === dayBeforeYesterdayStr && dateRange.end === dayBeforeYesterdayStr)) {
+                  return t("reports.dayBeforeYesterday");
+                }
+                
+                // Check if it's last month
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                const lastMonthStart = format(lastMonth, "yyyy-MM-dd");
+                const lastMonthEndStr = format(lastMonthEnd, "yyyy-MM-dd");
+                if (activeFilter === "lastMonth" || (dateRange.start === lastMonthStart && dateRange.end === lastMonthEndStr)) {
+                  return t("reports.lastMonth");
+                }
+                
+                // Check if it's this year
+                const yearStart = new Date(today.getFullYear(), 0, 1);
+                const yearStartStr = format(yearStart, "yyyy-MM-dd");
+                if (activeFilter === "thisYear" || (dateRange.start === yearStartStr && dateRange.end === todayStr)) {
+                  return t("reports.thisYear");
+                }
+                
+                // Check if it's this month (default)
+                const monthStart = startOfMonth(today);
+                const monthEnd = endOfMonth(today);
+                const thisMonthStart = format(monthStart, "yyyy-MM-dd");
+                const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
+                if (activeFilter === "thisMonth" || (dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd)) {
+                  return t("reports.thisMonth");
+                }
+                
+                // Custom date range
+                return `${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`;
+              })()}
               <ChevronRight
                 className={`w-4 h-4 ml-1 transition-transform ${showDatePicker ? "rotate-90" : ""}`}
               />
@@ -579,7 +629,63 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 />
               </div>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="flex flex-wrap gap-2 mt-3">
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  setDateRange({
+                    start: format(today, "yyyy-MM-dd"),
+                    end: format(today, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("today");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "today"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.toDay")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const yesterday = subDays(today, 1);
+                  setDateRange({
+                    start: format(yesterday, "yyyy-MM-dd"),
+                    end: format(yesterday, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("yesterday");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "yesterday"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.yesterday")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const dayBeforeYesterday = subDays(today, 2);
+                  setDateRange({
+                    start: format(dayBeforeYesterday, "yyyy-MM-dd"),
+                    end: format(dayBeforeYesterday, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("dayBeforeYesterday");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "dayBeforeYesterday"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.dayBeforeYesterday")}
+              </Button>
               <Button
                 size="sm"
                 onClick={() => {
@@ -604,38 +710,40 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                 size="sm"
                 onClick={() => {
                   const today = new Date();
-                  const yesterday = subDays(today, 1);
+                  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
                   setDateRange({
-                    start: format(yesterday, "yyyy-MM-dd"),
-                    end: format(yesterday, "yyyy-MM-dd"),
+                    start: format(lastMonth, "yyyy-MM-dd"),
+                    end: format(lastMonthEnd, "yyyy-MM-dd"),
                   });
-                  setActiveFilter("yesterday");
+                  setActiveFilter("lastMonth");
                 }}
                 className={`text-xs px-3 py-1 ${
-                  activeFilter === "yesterday"
+                  activeFilter === "lastMonth"
                     ? "bg-green-600 hover:bg-green-700 text-white"
                     : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
                 }`}
               >
-                {t("reports.lastWeek")}
+                {t("reports.lastMonth")}
               </Button>
               <Button
                 size="sm"
                 onClick={() => {
                   const today = new Date();
+                  const yearStart = new Date(today.getFullYear(), 0, 1);
                   setDateRange({
-                    start: format(today, "yyyy-MM-dd"),
+                    start: format(yearStart, "yyyy-MM-dd"),
                     end: format(today, "yyyy-MM-dd"),
                   });
-                  setActiveFilter("today");
+                  setActiveFilter("thisYear");
                 }}
                 className={`text-xs px-3 py-1 ${
-                  activeFilter === "today"
+                  activeFilter === "thisYear"
                     ? "bg-green-600 hover:bg-green-700 text-white"
                     : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
                 }`}
               >
-                {t("reports.toDay")}
+                {t("reports.thisYear")}
               </Button>
             </div>
           </div>

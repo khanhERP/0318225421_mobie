@@ -536,20 +536,36 @@ export function DashboardOverview() {
               {(() => {
                 const today = new Date();
                 const todayStr = format(today, "yyyy-MM-dd");
+                
+                // Check if it's today
                 const isToday = dateRange.start === todayStr && dateRange.end === todayStr;
-
                 if (isToday) {
                   return t("reports.today");
                 }
 
-                // Check if it's last week
+                // Check if it's yesterday
+                const yesterday = subDays(today, 1);
+                const yesterdayStr = format(yesterday, "yyyy-MM-dd");
+                const isYesterday = dateRange.start === yesterdayStr && dateRange.end === yesterdayStr;
+                if (isYesterday) {
+                  return t("reports.yesterday");
+                }
+
+                // Check if it's day before yesterday
+                const dayBeforeYesterday = subDays(today, 2);
+                const dayBeforeYesterdayStr = format(dayBeforeYesterday, "yyyy-MM-dd");
+                const isDayBeforeYesterday = dateRange.start === dayBeforeYesterdayStr && dateRange.end === dayBeforeYesterdayStr;
+                if (isDayBeforeYesterday) {
+                  return t("reports.dayBeforeYesterday");
+                }
+
+                // Check if it's last week (7 days ago to today)
                 const weekStart = subDays(today, 7);
                 const lastWeekStart = format(weekStart, "yyyy-MM-dd");
                 const lastWeekEnd = format(today, "yyyy-MM-dd");
                 const isLastWeek = dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd;
-
                 if (isLastWeek) {
-                  return t("reports.lastWeekText");
+                  return t("reports.lastWeek");
                 }
 
                 // Check if it's this month
@@ -558,9 +574,26 @@ export function DashboardOverview() {
                 const thisMonthStart = format(monthStart, "yyyy-MM-dd");
                 const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
                 const isThisMonth = dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd;
-
                 if (isThisMonth) {
-                  return t("reports.thisMonthText");
+                  return t("reports.thisMonth");
+                }
+
+                // Check if it's last month
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                const lastMonthStart = format(lastMonth, "yyyy-MM-dd");
+                const lastMonthEndStr = format(lastMonthEnd, "yyyy-MM-dd");
+                const isLastMonth = dateRange.start === lastMonthStart && dateRange.end === lastMonthEndStr;
+                if (isLastMonth) {
+                  return t("reports.lastMonth");
+                }
+
+                // Check if it's this year (from January 1st to today)
+                const yearStart = new Date(today.getFullYear(), 0, 1);
+                const yearStartStr = format(yearStart, "yyyy-MM-dd");
+                const isThisYear = dateRange.start === yearStartStr && dateRange.end === todayStr;
+                if (isThisYear) {
+                  return t("reports.thisYear");
                 }
 
                 return `${format(new Date(dateRange.start), "dd/MM/yyyy", { locale: vi })} - ${format(new Date(dateRange.end), "dd/MM/yyyy", { locale: vi })}`;
@@ -620,6 +653,32 @@ export function DashboardOverview() {
                 size="sm"
                 onClick={() => {
                   const today = new Date();
+                  const yesterday = subDays(today, 1);
+                  const formattedYesterday = format(yesterday, "yyyy-MM-dd");
+                  setDateRange({ start: formattedYesterday, end: formattedYesterday });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.yesterday")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const dayBeforeYesterday = subDays(today, 2);
+                  const formatted = format(dayBeforeYesterday, "yyyy-MM-dd");
+                  setDateRange({ start: formatted, end: formatted });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.dayBeforeYesterday")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
                   const weekStart = subDays(today, 7);
                   setDateRange({
                     start: format(weekStart, "yyyy-MM-dd"),
@@ -654,6 +713,37 @@ export function DashboardOverview() {
                 className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
               >
                 {t("reports.thisMonth")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                  setDateRange({
+                    start: format(lastMonth, "yyyy-MM-dd"),
+                    end: format(lastMonthEnd, "yyyy-MM-dd"),
+                  });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.lastMonth")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const yearStart = new Date(today.getFullYear(), 0, 1);
+                  setDateRange({
+                    start: format(yearStart, "yyyy-MM-dd"),
+                    end: format(today, "yyyy-MM-dd"),
+                  });
+                  setShowDatePicker(false);
+                }}
+                className="text-xs px-3 py-1 border border-green-600 text-green-600 bg-white hover:bg-green-50"
+              >
+                {t("reports.thisYear")}
               </Button>
             </div>
           </div>

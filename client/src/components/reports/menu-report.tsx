@@ -276,36 +276,25 @@ export function MenuReport({
               onClick={() => setShowDatePicker(!showDatePicker)}
             >
               {(() => {
-                const today = new Date();
-                const todayStr = format(today, "yyyy-MM-dd");
-                const isToday = dateRange.start === todayStr && dateRange.end === todayStr;
-                
-                if (isToday) {
-                  return t("reports.today");
+                // Use activeFilter state to display the correct text
+                switch (activeFilter) {
+                  case "today":
+                    return t("reports.toDay");
+                  case "yesterday":
+                    return t("reports.yesterdayText");
+                  case "dayBeforeYesterday":
+                    return t("reports.dayBeforeYesterdayText");
+                  case "lastWeek":
+                    return t("reports.lastWeek");
+                  case "thisMonth":
+                    return t("reports.thisMonth");
+                  case "lastMonth":
+                    return t("reports.lastMonthText");
+                  case "thisYear":
+                    return t("reports.thisYearText");
+                  default:
+                    return `${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`;
                 }
-                
-                // Check if it's last week
-                const weekStart = subDays(today, 7);
-                const lastWeekStart = format(weekStart, "yyyy-MM-dd");
-                const lastWeekEnd = format(today, "yyyy-MM-dd");
-                const isLastWeek = dateRange.start === lastWeekStart && dateRange.end === lastWeekEnd;
-                
-                if (isLastWeek) {
-                  return t("reports.lastWeek");
-                }
-                
-                // Check if it's this month
-                const monthStart = startOfMonth(today);
-                const monthEnd = endOfMonth(today);
-                const thisMonthStart = format(monthStart, "yyyy-MM-dd");
-                const thisMonthEnd = format(monthEnd, "yyyy-MM-dd");
-                const isThisMonth = dateRange.start === thisMonthStart && dateRange.end === thisMonthEnd;
-                
-                if (isThisMonth) {
-                  return t("reports.thisMonth");
-                }
-                
-                return `${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`;
               })()}
               <ChevronRight
                 className={`w-4 h-4 ml-1 transition-transform ${showDatePicker ? "rotate-90" : ""}`}
@@ -328,9 +317,10 @@ export function MenuReport({
                 <input
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) =>
-                    setDateRange((prev) => ({ ...prev, start: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setDateRange((prev) => ({ ...prev, start: e.target.value }));
+                    setActiveFilter("custom");
+                  }}
                   className="w-full text-sm border border-gray-300 rounded px-2 py-1"
                 />
               </div>
@@ -341,14 +331,15 @@ export function MenuReport({
                 <input
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) =>
-                    setDateRange((prev) => ({ ...prev, end: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setDateRange((prev) => ({ ...prev, end: e.target.value }));
+                    setActiveFilter("custom");
+                  }}
                   className="w-full text-sm border border-gray-300 rounded px-2 py-1"
                 />
               </div>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-3 flex-wrap">
               <Button
                 size="sm"
                 onClick={() => {
@@ -364,6 +355,44 @@ export function MenuReport({
                 }`}
               >
                 {t("reports.toDay")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const yesterday = subDays(today, 1);
+                  setDateRange({
+                    start: format(yesterday, "yyyy-MM-dd"),
+                    end: format(yesterday, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("yesterday");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "yesterday"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.yesterdayText")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const dayBeforeYesterday = subDays(today, 2);
+                  setDateRange({
+                    start: format(dayBeforeYesterday, "yyyy-MM-dd"),
+                    end: format(dayBeforeYesterday, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("dayBeforeYesterday");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "dayBeforeYesterday"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.dayBeforeYesterdayText")}
               </Button>
               <Button
                 size="sm"
@@ -403,6 +432,45 @@ export function MenuReport({
                 }`}
               >
                 {t("reports.thisMonth")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+                  setDateRange({
+                    start: format(lastMonth, "yyyy-MM-dd"),
+                    end: format(lastMonthEnd, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("lastMonth");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "lastMonth"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.lastMonthText")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const yearStart = new Date(today.getFullYear(), 0, 1);
+                  setDateRange({
+                    start: format(yearStart, "yyyy-MM-dd"),
+                    end: format(today, "yyyy-MM-dd"),
+                  });
+                  setActiveFilter("thisYear");
+                }}
+                className={`text-xs px-3 py-1 ${
+                  activeFilter === "thisYear"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border border-green-600 text-green-600 bg-white hover:bg-green-50"
+                }`}
+              >
+                {t("reports.thisYearText")}
               </Button>
             </div>
           </div>

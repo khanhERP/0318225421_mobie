@@ -17,8 +17,16 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     refresh: "Làm mới",
     toDay: "Hôm nay",
     today: "Hôm nay",
+    yesterday: "Hôm qua",
+    dayBeforeYesterday: "Hôm kia",
     lastWeek: "Tuần trước",
     thisMonth: "Tháng này",
+    lastMonth: "Tháng trước",
+    thisYear: "Năm nay",
+    yesterdayText: "Hôm qua",
+    dayBeforeYesterdayText: "Hôm kia",
+    lastMonthText: "Tháng trước",
+    thisYearText: "Năm nay",
     thisWeek: "Tuần này",
     lastWeek: "Tuần trước",
     lastWeekText: "Tuần trước",
@@ -395,174 +403,6 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     noOrdersFound: "Không tìm thấy đơn hàng",
     noOrders: "Không có đơn hàng",
 
-    // Chart specific
-    value: "Giá trị",
-    chartData: "Dữ liệu biểu đồ",
-    xAxis: "Trục X",
-    yAxis: "Trục Y",
-    legend: "Chú thích",
-    dataPoints: "Điểm dữ liệu",
-
-    // Menu analysis
-    productPerformance: "Hiệu suất sản phẩm",
-    categoryPerformance: "Phân tích theo nhóm hàng",
-    topSellingItems: "Top 10 mặt hàng bán chạy nhất",
-    topRevenueItems: "Top 10 mặt hàng doanh thu cao nhất",
-    categoryBreakdown: "Phân tích theo danh mục",
-    itemPerformance: "Hiệu suất sản phẩm",
-    salesTrend: "Xu hướng bán hàng",
-    averagePrice: "Giá trung bình",
-    profitMargin: "Tỷ suất lợi nhuận",
-    costAnalysis: "Phân tích chi phí",
-    stockMovement: "Di chuyển tồn kho",
-    menuAnalysisDescription: "Phân tích hiệu suất menu và sản phẩm bán chạy",
-    revenueByCategory: "Doanh thu",
-    quantityByCategory: "Số lượng",
-    itemCount: "Số sản phẩm",
-    menuItemAnalysis: "Phân tích sản phẩm theo đơn hàng",
-    topProductsByQuantity: "Sản phẩm bán nhiều nhất theo số lượng",
-    topProductsByRevenue: "Sản phẩm doanh thu cao nhất",
-    averagePrice: "Giá trung bình",
-    contribution: "% Đóng góp",
-
-    // Menu report specific translations
-    menuItems: "Mặt hàng đã bán",
-    itemsSold: "đã bán",
-    revenueShare: "Phần doanh thu",
-    salesShare: "Phần bán hàng",
-    popularMenuByQuantity: "Sản phẩm bán chạy theo số lượng",
-    popularMenuByQuantityDesc: "Top sản phẩm được bán nhiều nhất theo số lượng",
-    highRevenueMenu: "Sản phẩm doanh thu cao",
-    highRevenueMenuDesc: "Top sản phẩm có doanh thu cao nhất",
-    rank: "Xếp hạng",
-    menuName: "Tên sản phẩm",
-    salesCount: "Số lượng bán",
-    noCategoryData: "Không có dữ liệu danh mục",
-    noSalesData: "Không có dữ liệu bán hàng",
-    noRevenueData: "Không có dữ liệu doanh thu",
-    topProductsByQuantity: "Sản phẩm bán nhiều nhất theo số lượng",
-    topProductsByRevenue: "Sản phẩm doanh thu cao nhất",
-    averagePrice: "Giá trung bình",
-    contribution: "% đóng góp",
-
-    // Table analysis
-    tablePerformance: "Hiệu suất bàn",
-    utilizationRate: "Tỷ lệ sử dụng",
-    averageRevenue: "Doanh thu trung bình",
-    peakHours: "Giờ cao điểm",
-    revenuePerTable: "Doanh thu mỗi bàn",
-    ordersPerTable: "Số đơn hàng mỗi bàn",
-
-    // Sales report specific
-    salesReportDescription: "Phân tích chi tiết về doanh số bán hàng",
-    loading: "Đang tải",
-    noData: "Không có dữ liệu",
-    noPaymentData: "Không có dữ liệu thanh toán",
-    noPaymentDataDescription:
-      "Chưa có giao dịch thanh toán nào trong khoảng thời gian được chọn",
-    salesDetails: "Chi tiết bán hàng",
-    revenueExpenseDetails: "Chi tiết thu chi",
-    inventoryDetails: "Chi tiết hàng hóa",
-    noReportData: "Không có dữ liệu báo cáo",
-    centralBranch: "Chi nhánh trung tâm",
-
-    // Report specific content
-    salesReportTitle: "Báo cáo bán hàng",
-    revenueReportTitle: "Báo cáo doanh thu",
-    inventoryReportTitle: "Báo cáo hàng hóa",
-    summaryReportTitle: "Báo cáo tóm tắt",
-
-    // Table detail headers
-    salesDetailsHeader: " Chi tiết bán hàng",
-    revenueExpenseDetailsHeader: "Chi tiết thu chi",
-    inventoryDetailsHeader: "Chi tiết hàng hóa",
-
-    // Additional transaction types
-    totalTransactions: "Tổng giao dịch",
-    income: "Thu nhập",
-    expenses: "Chi phí",
-    netProfit: "Lợi nhuận ròng",
-    transactionDetails: "Chi tiết giao dịch",
-    transactionId: "ID giao dịch",
-    method: "Phương thức",
-    notes: "Ghi chú",
-    cashPayment: "Thanh toán tiền mặt",
-    cardPayment: "Thanh toán thẻ",
-    transfer: "Chuyển khoản",
-    wallet: "Ví điện tử",
-    // Status
-    status: "Trạng thái",
-    // Additional report sections
-    detailedAnalysis: "Phân tích chi tiết",
-    quickSummary: "Tóm tắt nhanh",
-    comparisonReport: "Báo cáo so sánh",
-    trendsAndInsights: "Xu hướng và thông tin chi tiết",
-    performanceIndicators: "Chỉ số hiệu suất",
-    financialMetrics: "Chỉ số tài chính",
-    operationalMetrics: "Chỉ số vận hành",
-    customerMetrics: "Chỉ số khách hàng",
-
-    // Sales channel report specific
-    dineIn: "Ăn tại chỗ",
-    takeaway: "Mang về",
-    details: "Chi tiết",
-    cancelled: "Đã hủy",
-    salesMethodReport: "Báo cáo theo hình thức bán hàng",
-    salesMethodReportDesc:
-      "Phân tích chi tiết theo hình thức bán hàng (Ăn tại chỗ / Mang về)",
-
-    // Financial reports
-    financialReport: "Báo cáo tài chính",
-    financialReportDescription: "Báo cáo chi tiết về tình hình tài chính",
-    profitLoss: "Lãi lỗ",
-    balanceSheet: "Bảng cân đối kế toán",
-    cashFlow: "Dòng tiền",
-
-    // Customer reports
-    channelSalesReport: "Báo cáo hình thức bán hàng",
-
-    // Supplier reports
-    supplierReportDescription: "Báo cáo chi tiết về nhà cung cấp",
-    supplierPerformance: "Hiệu suất nhà cung cấp",
-
-    // Inventory reports
-    inventoryReportDescription: "Báo cáo chi tiết về tồn kho",
-    stockLevel: "Mức tồn kho",
-    stockMovementReport: "Báo cáo di chuyển kho",
-    lowStockAlert: "Cảnh báo tồn kho thấp",
-
-    // Additional menu items
-    warehouseReport: "Báo cáo kho",
-
-    // Sales level indicators
-    salesLevel: "Mức độ bán hàng",
-    high: "Cao",
-    medium: "Trung bình",
-    low: "Thấp",
-    orderCount: "Số đơn hàng",
-
-    // Sales report specific Vietnamese
-    salesReportDescription: "Phân tích chi tiết về hiệu suất bán hàng",
-    loading: "Đang tải",
-    noData: "Không có dữ liệu",
-    noPaymentData: "Không có dữ liệu thanh toán",
-    noPaymentDataDescription:
-      "Không tìm thấy giao dịch thanh toán nào trong thời gian đã chọn",
-
-    // Additional Vietnamese translations
-    period: "Kỳ",
-    noDataDescription: "Không có dữ liệu để hiển thị",
-    monthAccumulated: "Tháng tích lũy",
-    peakHour: "Giờ cao điểm",
-    filters: "Bộ lọc",
-    applyFilters: "Áp dụng bộ lọc",
-    resetFilters: "Đặt lại bộ lọc",
-    uniqueProducts: "Sản phẩm độc đáo",
-    categoryGroup: "Nhóm hàng",
-    salesRevenue: "Doanh thu bán hàng",
-    revenueAmount: "Số tiền doanh thu",
-    revenueTotal: "Doanh thu",
-
     // Chart and filter labels
     selectDateRange: "Chọn khoảng thời gian",
     applyFilter: "Áp dụng bộ lọc",
@@ -604,8 +444,16 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     refresh: "새로고침",
     toDay: "오늘",
     today: "오늘",
+    yesterday: "어제",
+    dayBeforeYesterday: "그저께",
     lastWeek: "지난주",
     thisMonth: "이번 달",
+    lastMonth: "지난 달",
+    thisYear: "올해",
+    yesterdayText: "어제",
+    dayBeforeYesterdayText: "그저께",
+    lastMonthText: "지난 달",
+    thisYearText: "올해",
     thisWeek: "이번 주",
     lastWeek: "지난주",
     lastWeekText: "지난주",
@@ -1159,8 +1007,16 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     refresh: "Refresh",
     toDay: "Today",
     today: "Today",
+    yesterday: "Yesterday",
+    dayBeforeYesterday: "Day Before Yesterday",
     lastWeek: "Last Week",
     thisMonth: "This Month",
+    lastMonth: "Last Month",
+    thisYear: "This Year",
+    yesterdayText: "Yesterday",
+    dayBeforeYesterdayText: "Day Before Yesterday",
+    lastMonthText: "Last Month",
+    thisYearText: "This Year",
     thisWeek: "This Week",
     lastWeek: "Last Week",
     lastWeekText: "Last Week",
