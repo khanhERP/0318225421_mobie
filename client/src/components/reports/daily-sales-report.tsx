@@ -867,10 +867,12 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                         {dailyData.orderCount} {t("reports.orders")}
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end justify-center">
                       <div className="font-semibold text-green-600">
                         {formatCurrency(dailyData.revenue)}
                       </div>
+                    </div>
+                    <div className="flex items-center">
                       <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
                   </div>
