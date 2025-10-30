@@ -237,10 +237,10 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
                     {storeSettings?.storeName || ""}
                   </div>
                   <div className="text-sm">
-                    {t("common.address")}: {storeSettings.address || ""}
+                    {t("common.address")}: {storeSettings?.address || ""}
                   </div>
                   <div className="text-sm">
-                    {t("common.phone")}: {storeSettings.phone || ""}
+                    {t("common.phone")}: {storeSettings?.phone || ""}
                   </div>
                 </div>
                 <h2 className="text-lg font-bold">
