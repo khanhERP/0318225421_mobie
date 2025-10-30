@@ -295,9 +295,10 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       );
     }
 
-    let dateCompare = storeSettings?.storeCode?.startsWith("CH-")
-      ? "updatedAt"
-      : "orderedAt";
+    let dateCompare =
+      storeSettings?.storeCode?.startsWith("CH-") && statusFilter !== "pending"
+        ? "updatedAt"
+        : "orderedAt";
     // Apply date range filter
     if (dateRange === "today") {
       const today = new Date().toISOString().split("T")[0];
@@ -305,6 +306,22 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
         const orderDate = new Date(order[dateCompare])
           .toISOString()
           .split("T")[0];
+
+        const orderDateUpdated = new Date(order.updatedAt)
+          .toISOString()
+          .split("T")[0];
+
+        const orderDateCreated = new Date(order.orderedAt)
+          .toISOString()
+          .split("T")[0];
+
+        if (statusFilter == "all") {
+          return (
+            (orderDateUpdated === today &&
+              order.status.include(["paid", "completed", "cancelled"])) ||
+            (orderDateCreated === today && order.status == "pending")
+          );
+        }
         return orderDate === today;
       });
     } else if (dateRange === "custom" && startDate && endDate) {
@@ -312,6 +329,26 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
         const orderDate = new Date(order[dateCompare])
           .toISOString()
           .split("T")[0];
+
+        const orderDateUpdated = new Date(order.updatedAt)
+          .toISOString()
+          .split("T")[0];
+
+        const orderDateCreated = new Date(order.orderedAt)
+          .toISOString()
+          .split("T")[0];
+
+        if (statusFilter == "all") {
+          return (
+            (orderDateUpdated >= startDate &&
+              orderDateUpdated <= endDate &&
+              order.status.include(["paid", "completed", "cancelled"])) ||
+            (orderDateCreated >= startDate &&
+              orderDateCreated <= endDate &&
+              order.status == "pending")
+          );
+        }
+
         return orderDate >= startDate && orderDate <= endDate;
       });
     }
