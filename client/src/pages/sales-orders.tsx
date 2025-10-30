@@ -318,7 +318,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
         if (statusFilter == "all") {
           return (
             (orderDateUpdated === today &&
-              order.status.include(["paid", "completed", "cancelled"])) ||
+              ["paid", "completed", "cancelled"].includes(order.status)) ||
             (orderDateCreated === today && order.status == "pending")
           );
         }
