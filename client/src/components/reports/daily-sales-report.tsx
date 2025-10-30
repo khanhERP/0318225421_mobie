@@ -125,7 +125,7 @@ export function DailySalesReport({ onBack }: DailySalesReportProps) {
 
     paidOrders.forEach((order) => {
       let orderDate = new Date(order.orderedAt);
-      if (storeSettings.storeCode.startsWith("CH-")) {
+      if (storeSettings?.storeCode?.startsWith("CH-")) {
         orderDate = new Date(order.updatedAt);
       }
       const dateKey = format(orderDate, "yyyy-MM-dd");
