@@ -342,7 +342,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
           return (
             (orderDateUpdated >= startDate &&
               orderDateUpdated <= endDate &&
-              order.status.include(["paid", "completed", "cancelled"])) ||
+              ["paid", "completed", "cancelled"].includes(order.status)) ||
             (orderDateCreated >= startDate &&
               orderDateCreated <= endDate &&
               order.status == "pending")
