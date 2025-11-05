@@ -53,6 +53,7 @@ export function OtherMenu({ onBack, onLogout }: OtherMenuProps) {
 
     // Clear authentication state from sessionStorage
     sessionStorage.removeItem("pinAuthenticated");
+    localStorage.removeItem('dashboard-date-range');
 
     // Call the logout callback
     onLogout();
