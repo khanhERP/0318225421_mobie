@@ -3,10 +3,7 @@ import { type ReportsTranslations } from "../types";
 export const reportsTranslations: { [key: string]: ReportsTranslations } = {
   vi: {
     title: "Báo cáo",
-    dineln: "Tại chỗ",
-    takeaway: "Mang đi",
     details: "Chi tiết",
-    takeaway: "Mang đi",
     description: "Xem báo cáo bán hàng và vận hành",
     dashboard: "Bảng điều khiển",
     noData: "Không có dữ liệu",
@@ -15,6 +12,11 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     menuAnalysis: "Phân tích menu",
     tableAnalysis: "Phân tích bàn",
     backToTables: "Quay lại Bàn",
+    noRevenueData: "Không có dữ liệu doanh thu",
+    noPaymentData: "Không có dữ liệu thanh toán",
+    noPaymentDataDescription:
+        "Không có giao dịch thanh toán trong khoảng thời gian đã chọn",
+      dineIn: "Tại chỗ",
     menuAnalysisDescription: "Phân tích chi tiết về hiệu suất menu và sản phẩm",
 
     // Date and time filters
@@ -433,11 +435,8 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
 
   ko: {
     title: "보고서",
-    dineln: "매장 식사",
-    takeaway: "포장",
     description: "판매 및 운영 보고서 보기",
     dashboard: "대시보드",
-    takeaway: "포장",
     noData: "데이터 없음",
     details: "자세히 보기",
     menuAnalysisDescription: "메뉴 및 상품 성과에 대한 상세 분석",
@@ -1004,8 +1003,6 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
 
   en: {
     title: "Reports",
-    dineln: "Dine In",
-    takeaway: "Takeaway",
     description: "View sales and operational reports",
     dashboard: "Dashboard",
     details: "Details",
@@ -1017,7 +1014,6 @@ export const reportsTranslations: { [key: string]: ReportsTranslations } = {
     menuAnalysis: "Menu Analysis",
     tableAnalysis: "Table Analysis",
     backToTables: "Back to Tables",
-    takeaway: "Takeaway",
     totalRevenue: "Total Revenue",
 
     // Date and time filters
