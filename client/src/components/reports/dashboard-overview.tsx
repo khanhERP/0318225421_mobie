@@ -81,18 +81,18 @@ export function DashboardOverview() {
 
   // Initialize with saved date range from localStorage or today's date
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
-    try {
-      const savedDateRange = localStorage.getItem('dashboard-date-range');
-      if (savedDateRange) {
-        const parsed = JSON.parse(savedDateRange);
-        // Validate the saved dates
-        if (parsed.start && parsed.end) {
-          return { start: parsed.start, end: parsed.end };
-        }
-      }
-    } catch (error) {
-      console.error('Error loading saved date range:', error);
-    }
+    // try {
+    //   const savedDateRange = localStorage.getItem('dashboard-date-range');
+    //   if (savedDateRange) {
+    //     const parsed = JSON.parse(savedDateRange);
+    //     // Validate the saved dates
+    //     if (parsed.start && parsed.end) {
+    //       return { start: parsed.start, end: parsed.end };
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error('Error loading saved date range:', error);
+    // }
     // Fallback to today's date
     const today = new Date();
     const formattedToday = format(today, "yyyy-MM-dd");
