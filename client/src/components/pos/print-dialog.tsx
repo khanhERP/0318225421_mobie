@@ -220,7 +220,7 @@ export function PrintDialog({
         console.log('🖨️ Print Dialog: Updating order status to paid before printing for order:', receiptData.orderId);
 
         try {
-          const statusResponse = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/${receiptData.orderId}/status`, {
+          const statusResponse = await fetch(`https://edpos-mobile-be.onrender.com/api/orders/${receiptData.orderId}/status`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -264,7 +264,7 @@ export function PrintDialog({
       // Always try POS API first for any device
       try {
         console.log('🖨️ Attempting POS printer API...');
-        const printApiResponse = await fetch('https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/pos/print-receipt', {
+        const printApiResponse = await fetch('https://edpos-mobile-be.onrender.com/api/pos/print-receipt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -793,7 +793,7 @@ export function PrintDialog({
 
                 // Send message to parent to stop any popup flows
                 try {
-                  fetch('https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/popup/close', {
+                  fetch('https://edpos-mobile-be.onrender.com/api/popup/close', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',

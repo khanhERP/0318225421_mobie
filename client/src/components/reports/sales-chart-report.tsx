@@ -105,9 +105,9 @@ export function SalesChartReport() {
 
   // Query store settings for priceIncludesTax
   const { data: storeSettings } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/store-settings"],
     queryFn: async () => {
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+      const response = await fetch("https://edpos-mobile-be.onrender.com/api/store-settings");
       if (!response.ok) {
         throw new Error("Failed to fetch store settings");
       }
@@ -123,7 +123,7 @@ export function SalesChartReport() {
     error: ordersError,
   } = useQuery({
     queryKey: [
-      "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range",
+      "https://edpos-mobile-be.onrender.com/api/orders/date-range",
       startDate,
       endDate,
       startTime,
@@ -168,7 +168,7 @@ export function SalesChartReport() {
         });
 
         const response = await fetch(
-          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${encodeURIComponent(startDateTimeISO)}/${encodeURIComponent(endDateTimeISO)}`,
+          `https://edpos-mobile-be.onrender.com/api/orders/date-range/${encodeURIComponent(startDateTimeISO)}/${encodeURIComponent(endDateTimeISO)}`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -202,10 +202,10 @@ export function SalesChartReport() {
 
   // Query order items for all orders
   const { data: orderItems = [], isLoading: orderItemsLoading } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/order-items"],
     queryFn: async () => {
       try {
-        const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items");
+        const response = await fetch("https://edpos-mobile-be.onrender.com/api/order-items");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -226,22 +226,22 @@ export function SalesChartReport() {
   });
 
   const { data: tables } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/tables"],
   });
 
   // Combined loading state
   const isLoading = ordersLoading || orderItemsLoading;
 
   const { data: employees } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/employees"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/employees"],
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: products } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products", selectedCategory, productType, productSearch],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/products", selectedCategory, productType, productSearch],
     queryFn: async () => {
       const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products/${selectedCategory}/${productType}/${productSearch || ""}`,
+        `https://edpos-mobile-be.onrender.com/api/products/${selectedCategory}/${productType}/${productSearch || ""}`,
       );
       if (!response.ok) throw new Error("Failed to fetch products");
       return response.json();
@@ -250,15 +250,15 @@ export function SalesChartReport() {
   });
 
   const { data: categories } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/categories"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/categories"],
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: customers } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers", customerSearch, customerStatus],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/customers", customerSearch, customerStatus],
     queryFn: async () => {
       const response = await fetch(
-        `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers/${customerSearch || "all"}/${customerStatus}`,
+        `https://edpos-mobile-be.onrender.com/api/customers/${customerSearch || "all"}/${customerStatus}`,
       );
       if (!response.ok) throw new Error("Failed to fetch customers");
       return response.json();
@@ -270,7 +270,7 @@ export function SalesChartReport() {
   const { data: productAnalysisData, isLoading: productAnalysisLoading } =
     useQuery({
       queryKey: [
-        "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/product-analysis",
+        "https://edpos-mobile-be.onrender.com/api/product-analysis",
         startDate, // Use startDate for consistency
         endDate, // Use endDate for consistency
         selectedCategory,
@@ -285,7 +285,7 @@ export function SalesChartReport() {
           productType,
           productSearch: productSearch || "",
         });
-        const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/product-analysis?${params}`);
+        const response = await fetch(`https://edpos-mobile-be.onrender.com/api/product-analysis?${params}`);
         if (!response.ok) throw new Error("Failed to fetch product analysis");
         return response.json();
       },
@@ -294,7 +294,7 @@ export function SalesChartReport() {
     });
 
   const { data: transactions } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/transactions"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/transactions"],
     staleTime: 5 * 60 * 1000,
   });
 

@@ -44,16 +44,16 @@ export function SupplierReport() {
   const [debtTo, setDebtTo] = useState<string>("");
 
   const { data: suppliers } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/suppliers"],
   });
 
   const { data: supplierDebts } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/supplier-debts"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/supplier-debts"],
     enabled: concernType === "debt",
   });
 
   const { data: supplierPurchases } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/supplier-purchases"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/supplier-purchases"],
     enabled: concernType === "purchase" || concernType === "purchaseBySupplier",
   });
 

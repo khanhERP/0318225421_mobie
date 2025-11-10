@@ -15,11 +15,11 @@ export function AttendanceStats() {
   );
 
   const { data: employees } = useQuery({
-    queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/employees'],
+    queryKey: ['https://edpos-mobile-be.onrender.com/api/employees'],
   });
 
   const { data: attendanceRecords } = useQuery({
-    queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/attendance'],
+    queryKey: ['https://edpos-mobile-be.onrender.com/api/attendance'],
   });
 
   const getMonthlyStats = () => {

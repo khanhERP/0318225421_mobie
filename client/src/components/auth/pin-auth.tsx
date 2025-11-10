@@ -32,11 +32,11 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
     isLoading: isLoadingSettings,
     error: settingsError,
   } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/store-settings"],
     queryFn: async () => {
       try {
         console.log("🔍 Fetching store settings from API...");
-        const response = await apiRequest("GET", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+        const response = await apiRequest("GET", "https://edpos-mobile-be.onrender.com/api/store-settings");
 
         console.log("📡 Store settings response status:", response.status);
 
@@ -105,7 +105,7 @@ export function PinAuth({ onAuthSuccess }: PinAuthProps) {
       console.log("🔐 Verifying PIN via API...");
 
       // Call API to verify PIN
-      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/auth/verify-pin", {
+      const response = await fetch("https://edpos-mobile-be.onrender.com/api/auth/verify-pin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

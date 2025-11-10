@@ -39,9 +39,9 @@ export function RightSidebar() {
 
   // Query store settings to get business type
   const { data: storeSettings } = useQuery({
-    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
+    queryKey: ["https://edpos-mobile-be.onrender.com/api/store-settings"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
+      const response = await apiRequest("GET", "https://edpos-mobile-be.onrender.com/api/store-settings");
       return response.json();
     },
   });
