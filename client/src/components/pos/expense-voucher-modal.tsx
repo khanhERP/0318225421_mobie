@@ -82,10 +82,10 @@ export default function ExpenseVoucherModal({
 
   // Fetch customers
   const { data: customers = [] } = useQuery({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/customers"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers"],
     queryFn: async () => {
       try {
-        const response = await fetch("https://edpos-mobile-be.onrender.com/api/customers");
+        const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers");
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return Array.isArray(data) ? data : [];
@@ -98,10 +98,10 @@ export default function ExpenseVoucherModal({
 
   // Fetch employees
   const { data: employees = [] } = useQuery({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/employees"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/employees"],
     queryFn: async () => {
       try {
-        const response = await fetch("https://edpos-mobile-be.onrender.com/api/employees");
+        const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/employees");
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return Array.isArray(data) ? data : [];
@@ -114,10 +114,10 @@ export default function ExpenseVoucherModal({
 
   // Fetch suppliers
   const { data: suppliers = [] } = useQuery({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/suppliers"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers"],
     queryFn: async () => {
       try {
-        const response = await fetch("https://edpos-mobile-be.onrender.com/api/suppliers");
+        const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers");
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         return Array.isArray(data) ? data : [];
@@ -157,7 +157,7 @@ export default function ExpenseVoucherModal({
   const createVoucherMutation = useMutation({
     mutationFn: async (data: ExpenseVoucher) => {
       console.log("Creating expense voucher with data:", data);
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/expense-vouchers", {
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -177,8 +177,8 @@ export default function ExpenseVoucherModal({
         title: "Thành công",
         description: `Đã tạo phiếu chi ${formData.voucherNumber} thành công`,
       });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/expense-vouchers"] });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders"] });
       onClose();
     },
     onError: (error) => {
@@ -195,7 +195,7 @@ export default function ExpenseVoucherModal({
   const updateVoucherMutation = useMutation({
     mutationFn: async (data: ExpenseVoucher) => {
       console.log("Updating expense voucher with data:", data);
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/expense-vouchers/${data.id}`, {
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers/${data.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -215,8 +215,8 @@ export default function ExpenseVoucherModal({
         title: "Thành công", 
         description: `Đã cập nhật phiếu chi ${formData.voucherNumber} thành công`,
       });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/expense-vouchers"] });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders"] });
       setIsEditing(false);
     },
     onError: (error) => {
@@ -232,7 +232,7 @@ export default function ExpenseVoucherModal({
 
   const deleteVoucherMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/expense-vouchers/${id}`, {
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete expense voucher");
@@ -243,8 +243,8 @@ export default function ExpenseVoucherModal({
         title: "Thành công",
         description: "Đã xóa phiếu chi",
       });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/expense-vouchers"] });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders"] });
       setShowDeleteDialog(false);
       onClose();
     },
@@ -263,7 +263,7 @@ export default function ExpenseVoucherModal({
     if (!voucherNumber) {
       try {
         // Get the next sequence number from server
-        const response = await fetch("https://edpos-mobile-be.onrender.com/api/expense-vouchers/next-sequence");
+        const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/expense-vouchers/next-sequence");
         if (!response.ok) throw new Error("Failed to get next sequence");
         
         const { nextSequence } = await response.json();

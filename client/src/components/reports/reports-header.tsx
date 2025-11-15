@@ -19,9 +19,9 @@ export function ReportsHeader({
 
   // Fetch store settings
   const { data: storeSettings } = useQuery<StoreSettings>({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/store-settings"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/store-settings");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
       if (!response.ok) {
         throw new Error("Failed to fetch store settings");
       }

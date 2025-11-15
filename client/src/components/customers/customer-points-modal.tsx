@@ -89,7 +89,7 @@ export function CustomerPointsModal({
   const { data: pointsData, isLoading: pointsLoading } = useQuery({
     queryKey: ['customer-points', customerId],
     queryFn: async () => {
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/customers/${customerId}/points`);
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers/${customerId}/points`);
       if (!response.ok) throw new Error('Failed to fetch customer points');
       return response.json();
     },
@@ -100,7 +100,7 @@ export function CustomerPointsModal({
   const { data: pointHistory, isLoading: historyLoading } = useQuery({
     queryKey: ['customer-point-history', customerId],
     queryFn: async () => {
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/customers/${customerId}/point-history`);
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers/${customerId}/point-history`);
       if (!response.ok) throw new Error('Failed to fetch point history');
       return response.json();
     },
@@ -110,7 +110,7 @@ export function CustomerPointsModal({
   // Update points mutation
   const updatePointsMutation = useMutation({
     mutationFn: async (data: PointUpdateForm) => {
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/customers/${customerId}/points`, {
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers/${customerId}/points`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ export function CustomerPointsModal({
         queryKey: ['customer-point-history', customerId],
       });
       queryClient.invalidateQueries({
-        queryKey: ['https://edpos-mobile-be.onrender.com/api/customers'],
+        queryKey: ['https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/customers'],
       });
       toast({
         title: t("common.success"),

@@ -27,7 +27,7 @@ export default function TablesPage({ onLogout }: TablesPageProps) {
     const connectWebSocket = () => {
       try {
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsUrl = `https://edpos-mobile-be.onrender.com/ws`;
+        const wsUrl = `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/ws`;
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -60,8 +60,8 @@ export default function TablesPage({ onLogout }: TablesPageProps) {
 
               // Clear cache and force refresh
               queryClient.clear();
-              queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/tables"] });
-              queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/orders"] });
+              queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables"] });
+              queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders"] });
 
               // Dispatch custom events for TableGrid component
               window.dispatchEvent(
@@ -108,8 +108,8 @@ export default function TablesPage({ onLogout }: TablesPageProps) {
 
       // Force data refresh for any e-invoice related events
       queryClient.clear();
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/tables"] });
-      queryClient.invalidateQueries({ queryKey: ["https://edpos-mobile-be.onrender.com/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables"] });
+      queryClient.invalidateQueries({ queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders"] });
 
       // Dispatch refresh event for TableGrid
       window.dispatchEvent(

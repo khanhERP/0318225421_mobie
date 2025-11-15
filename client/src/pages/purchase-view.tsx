@@ -36,12 +36,12 @@ export default function PurchaseViewPage({ onLogout }: PurchaseViewPageProps) {
 
   // Fetch purchase receipt details
   const { data: purchaseOrder, isLoading: isOrderLoading, error: orderError } = useQuery<PurchaseOrder>({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/purchase-receipts", purchaseId],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts", purchaseId],
     queryFn: async () => {
       if (!purchaseId) throw new Error("Purchase ID not found");
 
       console.log('🔍 Fetching purchase receipt with ID:', purchaseId);
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/purchase-receipts/${purchaseId}`);
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts/${purchaseId}`);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -60,11 +60,11 @@ export default function PurchaseViewPage({ onLogout }: PurchaseViewPageProps) {
 
   // Fetch purchase receipt items
   const { data: purchaseItems = [], isLoading: isItemsLoading } = useQuery<PurchaseReceiptItem[]>({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/purchase-receipts", purchaseId, "items"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts", purchaseId, "items"],
     queryFn: async () => {
       if (!purchaseId) throw new Error("Purchase ID not found");
 
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/purchase-receipts/${purchaseId}/items`);
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts/${purchaseId}/items`);
       if (!response.ok) {
         throw new Error('Failed to fetch purchase receipt items');
       }
@@ -78,7 +78,7 @@ export default function PurchaseViewPage({ onLogout }: PurchaseViewPageProps) {
 
   // Fetch suppliers for name lookup
   const { data: suppliers = [] } = useQuery<Supplier[]>({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/suppliers"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/suppliers"],
   });
 
   // Initialize form data when purchase order loads
@@ -96,7 +96,7 @@ export default function PurchaseViewPage({ onLogout }: PurchaseViewPageProps) {
 
   // Fetch employees for display
   const { data: employees = [] } = useQuery({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/employees"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/employees"],
     select: (data: any[]) =>
       (data || []).map((emp: any) => ({
         id: emp.id,
@@ -706,7 +706,7 @@ export default function PurchaseViewPage({ onLogout }: PurchaseViewPageProps) {
                         return;
                       }
 
-                      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/purchase-receipts/${purchaseId}`, {
+                      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/purchase-receipts/${purchaseId}`, {
                         method: 'PUT',
                         headers: {
                           'Content-Type': 'application/json',

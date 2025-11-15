@@ -105,17 +105,17 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
 
   // Fetch orders
   const { data: orders = [], isLoading: ordersLoading, refetch: refetchOrders,} = useQuery({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/orders/date-range", startDate, endDate],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range", startDate, endDate],
     queryFn: async () => {
       try {
         console.log(`Dashboard - Date Range Query:`, {
           startDate: dateRange.start,
           endDate: dateRange.end,
-          apiUrl: `https://edpos-mobile-be.onrender.com/api/orders/date-range/${startDate}/${endDate}`,
+          apiUrl: `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${startDate}/${endDate}`,
         });
 
         const response = await fetch(
-          `https://edpos-mobile-be.onrender.com/api/orders/date-range/${startDate}/${endDate}`,
+          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${startDate}/${endDate}`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -149,7 +149,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: orderItems = [] } = useQuery({
     queryKey: ["order-items"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/order-items");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items");
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }
@@ -161,7 +161,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: tables = [] } = useQuery({
     queryKey: ["tables"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/tables");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables");
       if (!response.ok) {
         throw new Error("Failed to fetch tables");
       }
@@ -173,7 +173,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/products");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/products");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -185,7 +185,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
   const { data: storeSettings } = useQuery({
     queryKey: ["store-settings"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/store-settings");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
       if (!response.ok) {
         throw new Error("Failed to fetch store settings");
       }
@@ -392,7 +392,7 @@ export default function SalesOrdersPage({ onLogout }: SalesOrdersPageProps) {
       orderId: number;
       status: string;
     }) => {
-      const response = await fetch(`https://edpos-mobile-be.onrender.com/api/orders/${orderId}/status`, {
+      const response = await fetch(`https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -81,18 +81,6 @@ export function DashboardOverview() {
 
   // Initialize with saved date range from localStorage or today's date
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
-    // try {
-    //   const savedDateRange = localStorage.getItem('dashboard-date-range');
-    //   if (savedDateRange) {
-    //     const parsed = JSON.parse(savedDateRange);
-    //     // Validate the saved dates
-    //     if (parsed.start && parsed.end) {
-    //       return { start: parsed.start, end: parsed.end };
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error('Error loading saved date range:', error);
-    // }
     // Fallback to today's date
     const today = new Date();
     const formattedToday = format(today, "yyyy-MM-dd");
@@ -110,9 +98,9 @@ export function DashboardOverview() {
 
   // Fetch store settings
   const { data: storeSettings } = useQuery<StoreSettings>({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/store-settings"],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/store-settings");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/store-settings");
       if (!response.ok) {
         throw new Error("Failed to fetch store settings");
       }
@@ -124,7 +112,7 @@ export function DashboardOverview() {
   const { data: ordersData, isLoading: ordersLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/orders");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders");
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
@@ -136,7 +124,7 @@ export function DashboardOverview() {
   const { data: orderItemsData, isLoading: orderItemsLoading } = useQuery({
     queryKey: ["order-items"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/order-items");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/order-items");
       if (!response.ok) {
         throw new Error("Failed to fetch order items");
       }
@@ -146,17 +134,17 @@ export function DashboardOverview() {
 
   // Fetch orders in date range
   const { data: dateRangeOrders } = useQuery({
-    queryKey: ["https://edpos-mobile-be.onrender.com/api/orders/date-range", dateRange.start, dateRange.end],
+    queryKey: ["https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range", dateRange.start, dateRange.end],
     queryFn: async () => {
       try {
         console.log(`Dashboard - Date Range Query:`, {
           startDate: dateRange.start,
           endDate: dateRange.end,
-          apiUrl: `https://edpos-mobile-be.onrender.com/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
+          apiUrl: `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
         });
 
         const response = await fetch(
-          `https://edpos-mobile-be.onrender.com/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
+          `https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/orders/date-range/${dateRange.start}/${dateRange.end}`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -190,7 +178,7 @@ export function DashboardOverview() {
   const { data: tablesData } = useQuery({
     queryKey: ["tables"],
     queryFn: async () => {
-      const response = await fetch("https://edpos-mobile-be.onrender.com/api/tables");
+      const response = await fetch("https://09978332-5dc6-4a9a-8375-fec123be89da-00-1qhtnuziydfl4.pike.replit.dev/api/tables");
       if (!response.ok) {
         throw new Error("Failed to fetch tables");
       }
